@@ -1,3 +1,25 @@
+/*
+This file is part of the iText (R) project.
+Copyright (c) 1998-2025 Apryse Group NV
+Authors: Apryse Software.
+
+This program is offered under a commercial and under the AGPL license.
+For commercial licensing, contact us at https://itextpdf.com/sales.  For AGPL licensing, see below.
+
+AGPL licensing:
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace iText.Signatures.Validation.Events {
     /// <summary>This enumeration alleviates the need for instanceof on all IValidationEvents.</summary>
     public enum EventType {
@@ -19,14 +41,12 @@ namespace iText.Signatures.Validation.Events {
         /// that was not in the most recent DSS.
         /// </summary>
         CERTIFICATE_ISSUER_OTHER_INTERNAL_SOURCE_USED,
-        /// <summary>Event triggered for every outgoing OCSP request.</summary>
-        OCSP_REQUEST,
-        /// <summary>Event triggered for every OCSP response from the document that was not in the most recent DSS.</summary>
-        OCSP_OTHER_INTERNAL_SOURCE_USED,
-        /// <summary>Event triggered for every outgoing CRL request.</summary>
-        CRL_REQUEST,
-        /// <summary>Event triggered for every CRL response from the document that was not in the most recent DSS.</summary>
-        CRL_OTHER_INTERNAL_SOURCE_USED,
+        /// <summary>Event triggered when revocation data coming not from the latest DSS is needed to perform signature validation.
+        ///     </summary>
+        REVOCATION_NOT_FROM_DSS,
+        /// <summary>Event triggered when revocation data from a timestamped DSS is not enough to perform signature validation.
+        ///     </summary>
+        DSS_NOT_TIMESTAMPED,
         /// <summary>Event triggered when the most recent DSS has been processed.</summary>
         DSS_ENTRY_PROCESSED,
         /// <summary>Event triggered when the certificate chain was validated successfully.</summary>
