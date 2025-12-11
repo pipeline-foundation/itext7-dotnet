@@ -20,16 +20,14 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-namespace iText.Signatures.Validation {
-    /// <summary>Enum representing an origin from where the revocation data comes from.</summary>
-    public enum RevocationResponseOrigin {
-        /// <summary>Latest DSS dictionary in a PDF document.</summary>
-        LATEST_DSS,
-        /// <summary>DSS dictionary, corresponding to previous PDF document revisions.</summary>
-        HISTORICAL_DSS,
-        /// <summary>Signature CMS container.</summary>
-        SIGNATURE,
-        /// <summary>Other possible sources.</summary>
-        OTHER
+namespace iText.Commons.Json {
+    /// <summary>Class representing json null value.</summary>
+    public sealed class JsonNull : JsonValue {
+        /// <summary>A single null instance of this class.</summary>
+        public static readonly iText.Commons.Json.JsonNull JSON_NULL = new iText.Commons.Json.JsonNull();
+
+        private JsonNull()
+            : base() {
+        }
     }
 }

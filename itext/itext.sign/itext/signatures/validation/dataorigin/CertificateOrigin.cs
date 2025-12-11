@@ -20,20 +20,18 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-using iText.Commons.Bouncycastle.Cert;
-
-namespace iText.Signatures.Validation.Events {
-    /// <summary>This event is triggered when a certificate issues was retrieved from the internet.</summary>
-    public class CertificateIssuerRetrievalEvent : AbstractCertificateChainEvent {
-        /// <summary>Creates a new event instance.</summary>
-        /// <param name="certificate">the certificate for which the issuer was retrieved externally</param>
-        public CertificateIssuerRetrievalEvent(IX509Certificate certificate)
-            : base(certificate) {
-        }
-
-        /// <summary><inheritDoc/></summary>
-        public override EventType GetEventType() {
-            return EventType.CERTIFICATE_ISSUER_EXTERNAL_RETRIEVAL;
-        }
+namespace iText.Signatures.Validation.Dataorigin {
+    /// <summary>Enum representing an origin from where certificates come from.</summary>
+    public enum CertificateOrigin {
+        /// <summary>Latest DSS dictionary in a PDF document.</summary>
+        LATEST_DSS,
+        /// <summary>DSS dictionary, corresponding to previous PDF document revisions.</summary>
+        HISTORICAL_DSS,
+        /// <summary>Signature CMS container.</summary>
+        SIGNATURE,
+        /// <summary>OCSP response object.</summary>
+        OCSP_RESPONSE,
+        /// <summary>Other possible sources.</summary>
+        OTHER
     }
 }
