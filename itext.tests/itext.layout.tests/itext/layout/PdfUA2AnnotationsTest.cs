@@ -105,7 +105,6 @@ namespace iText.Layout {
                 PdfFileAttachmentAnnotation annot = new PdfFileAttachmentAnnotation(rect, fs);
                 annot.SetContents("Hello world");
                 annot.GetPdfObject().Put(PdfName.Type, PdfName.Annot);
-                pdfPage.AddAnnotation(annot);
                 PdfFormXObject xObject = new PdfFormXObject(rect);
                 annot.SetNormalAppearance(xObject.GetPdfObject());
                 pdfPage.AddAnnotation(annot);
