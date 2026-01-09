@@ -1,6 +1,6 @@
 /*
 This file is part of the iText (R) project.
-Copyright (c) 1998-2025 Apryse Group NV
+Copyright (c) 1998-2026 Apryse Group NV
 Authors: Apryse Software.
 
 This program is offered under a commercial and under the AGPL license.
@@ -58,10 +58,11 @@ namespace iText.IO.Font {
 
         [NUnit.Framework.Test]
         public virtual void TryToCreateTrueTypeWoff2FontTest() {
-            byte[] fontBytes = File.ReadAllBytes(System.IO.Path.Combine(SOURCE_FOLDER + "valid.woff2"));
+            byte[] fontBytes = File.ReadAllBytes(System.IO.Path.Combine(SOURCE_FOLDER + "BellefairRegularLatin.woff2")
+                );
             TrueTypeFont woff2Font = FontProgramFactory.CreateTrueTypeFont(fontBytes, false);
             NUnit.Framework.Assert.IsNotNull(woff2Font);
-            NUnit.Framework.Assert.AreEqual(4, woff2Font.CountOfGlyphs());
+            NUnit.Framework.Assert.AreEqual(209, woff2Font.CountOfGlyphs());
         }
     }
 }
