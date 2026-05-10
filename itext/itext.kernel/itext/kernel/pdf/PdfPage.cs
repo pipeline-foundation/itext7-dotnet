@@ -522,14 +522,15 @@ namespace iText.Kernel.Pdf {
         /// </remarks>
         /// <returns>set of pdf layers, associated with this page.</returns>
         public virtual ICollection<PdfLayer> GetPdfLayers() {
-            ICollection<PdfIndirectReference> ocgs = OcgPropertiesCopier.GetOCGsFromPage(this);
-            ICollection<PdfLayer> result = new LinkedHashSet<PdfLayer>();
-            foreach (PdfIndirectReference ocg in ocgs) {
-                if (ocg.GetRefersTo() != null && ocg.GetRefersTo().IsDictionary()) {
-                    result.Add(new PdfLayer((PdfDictionary)ocg.GetRefersTo()));
+            ICollection<PdfIndirectReference> ocgs = GetOCGsFromPage(this);
+            IList<PdfLayer> allLayers = GetDocument().GetCatalog().GetOCProperties(false).GetLayers();
+            ICollection<PdfLayer> pageLayers = new HashSet<PdfLayer>();
+            foreach (PdfLayer layer in allLayers) {
+                if (ocgs.Contains(layer.GetPdfObject().GetIndirectReference())) {
+                    pageLayers.Add(layer);
                 }
             }
-            return result;
+            return pageLayers;
         }
 
         /// <summary>Copies page as FormXObject to the specified document.</summary>
@@ -645,8 +646,8 @@ namespace iText.Kernel.Pdf {
                     Put(PdfName.Resources, resources.GetPdfObject());
                 }
             }
+            GetDocument().CheckIsoConformance(new PdfPageValidationContext(this));
             if (flushResourcesContentStreams) {
-                GetDocument().CheckIsoConformance(new PdfPageValidationContext(this));
                 FlushResourcesContentStreams();
             }
             PdfArray annots = GetAnnots(false);
@@ -1671,17 +1672,18 @@ namespace iText.Kernel.Pdf {
         }
 //\endcond
 
-        private bool IsPdfUA2Document() {
-            PdfUAConformance uaConformance = GetDocument().GetConformance().GetUAConformance();
-            if (uaConformance == null) {
+        private bool IsPdfUA2OrWellTaggedDocument() {
+            PdfConformance conformance = GetDocument().GetConformance();
+            if (conformance == null) {
                 try {
-                    uaConformance = PdfConformance.GetConformance(GetDocument().GetXmpMetadata()).GetUAConformance();
+                    conformance = PdfConformance.GetConformance(GetDocument().GetXmpMetadata());
                 }
                 catch (XMPException) {
                     return false;
                 }
             }
-            return PdfUAConformance.PDF_UA_2 == uaConformance;
+            return conformance.ConformsTo(PdfConformance.PDF_UA_2, PdfConformance.WELL_TAGGED_PDF_FOR_ACCESSIBILITY, PdfConformance
+                .WELL_TAGGED_PDF_FOR_REUSE);
         }
 
         private void CheckIsoConformanceForAnnotation(PdfAnnotation annotation) {
@@ -1957,9 +1959,9 @@ namespace iText.Kernel.Pdf {
         private void TagAnnotation(PdfAnnotation annotation) {
             bool tagAdded = false;
             bool presentInTagStructure = true;
-            bool isUA2 = IsPdfUA2Document();
+            bool isUA2OrWellTagged = IsPdfUA2OrWellTaggedDocument();
             TagTreePointer tagPointer = GetDocument().GetTagStructureContext().GetAutoTaggingPointer();
-            if (isUA2 && IsAnnotInvisible(annotation)) {
+            if (isUA2OrWellTagged && IsAnnotInvisible(annotation)) {
                 if (PdfVersion.PDF_2_0.CompareTo(GetDocument().GetPdfVersion()) <= 0) {
                     if (!StandardRoles.ARTIFACT.Equals(tagPointer.GetRole())) {
                         tagPointer.AddTag(StandardRoles.ARTIFACT);
@@ -1983,6 +1985,24 @@ namespace iText.Kernel.Pdf {
             if (tagAdded) {
                 tagPointer.MoveToParent();
             }
+        }
+
+        /// <summary>Get all OCGs from a given page annotations/xobjects/resources, including ones already stored in catalog
+        ///     </summary>
+        /// <param name="page">where to search for OCGs.</param>
+        /// <returns>set of indirect references pointing to found OCGs.</returns>
+        private static ICollection<PdfIndirectReference> GetOCGsFromPage(iText.Kernel.Pdf.PdfPage page) {
+            //Using linked hash set for elements order consistency (e.g. in tests)
+            ICollection<PdfIndirectReference> ocgs = new LinkedHashSet<PdfIndirectReference>();
+            IList<PdfAnnotation> annotations = page.GetAnnotations();
+            foreach (PdfAnnotation annotation in annotations) {
+                //Pass null instead of catalog OCProperties value, to include ocg clashing with catalog
+                OcgPropertiesCopier.GetUsedNonFlushedOCGsFromAnnotation(annotation, annotation, ocgs, null);
+            }
+            PdfDictionary resources = page.GetPdfObject().GetAsDictionary(PdfName.Resources);
+            OcgPropertiesCopier.GetUsedNonFlushedOCGsFromResources(resources, resources, ocgs, null, new HashSet<PdfObject
+                >());
+            return ocgs;
         }
 
         private static PdfObject GetInheritedValue(PdfPages parentPages, PdfName pdfName) {

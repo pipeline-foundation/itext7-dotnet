@@ -753,8 +753,7 @@ namespace iText.Kernel.Pdf.Canvas.Parser {
                 float size = ((PdfNumber)operands[1]).FloatValue();
                 PdfDictionary fontsDictionary = processor.GetResources().GetResource(PdfName.Font);
                 PdfDictionary fontDict = fontsDictionary.GetAsDictionary(fontResourceName);
-                PdfFont font = null;
-                font = processor.GetFont(fontDict);
+                PdfFont font = processor.GetFont(fontDict);
                 processor.GetGraphicsState().SetFont(font);
                 processor.GetGraphicsState().SetFontSize(size);
             }
@@ -962,7 +961,10 @@ namespace iText.Kernel.Pdf.Canvas.Parser {
                                                         );
                                                     if (patternName is PdfName) {
                                                         PdfPattern pattern = resources.GetPattern((PdfName)patternName);
-                                                        if (pattern is PdfPattern.Tiling && !((PdfPattern.Tiling)pattern).IsColored()) {
+                                                        if (pattern is PdfPattern.Tiling) {
+                                                            if (((PdfPattern.Tiling)pattern).IsColored()) {
+                                                                return new PatternColor(pattern);
+                                                            }
                                                             return new PatternColor((PdfPattern.Tiling)pattern, underlyingCs, GetColorants(underlyingOperands));
                                                         }
                                                     }

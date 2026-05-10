@@ -32,5 +32,9 @@ namespace iText.Commons.Bouncycastle.Asn1.X500 {
         /// <summary>Gets the RFC2253 name.</summary>
         /// <returns>the RFC2253 name</returns>
         String GetName();
+
+        /// <summary>Gets byte array representation of a wrapped X500Name.</summary>
+        /// <returns>byte array representation of a wrapped X500Name</returns>
+        byte[] GetEncoded();
     }
 }

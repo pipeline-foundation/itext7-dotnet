@@ -52,9 +52,12 @@ namespace iText.Bouncycastle.Asn1.X509 {
             return (X509Name)GetEncodable();
         }
 
-        public string GetName()
-        {
+        public string GetName() {
             return GetX509Name().ToString();
+        }
+
+        public byte[] GetEncoded() {
+            return GetX509Name().GetEncoded();
         }
 
         public override bool Equals(object o)

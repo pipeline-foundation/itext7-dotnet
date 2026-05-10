@@ -67,7 +67,6 @@ namespace iText.Kernel.Pdf {
         /// <param name="documentProperties">the base for new class instance</param>
         internal StampingProperties(DocumentProperties documentProperties)
             : base(documentProperties) {
-            this.dependencies = documentProperties.dependencies;
         }
 //\endcond
 
