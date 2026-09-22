@@ -22,6 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 using System;
 using System.Collections.Generic;
+using iText.Commons.Internal.Runtime;
 using iText.StyledXmlParser.Css;
 using iText.StyledXmlParser.Node;
 using iText.StyledXmlParser.Node.Impl.Jsoup.Node;
@@ -162,10 +163,10 @@ namespace iText.Svg.Processors.Impl {
                             namedObjects.Put(attribute, renderer);
                         }
                         if (renderer is StopSvgNodeRenderer) {
-                            if (parentRenderer is LinearGradientSvgNodeRenderer) {
-                                // It is necessary to add StopSvgNodeRenderer only as a child of LinearGradientSvgNodeRenderer,
+                            if (parentRenderer is AbstractGradientSvgNodeRenderer) {
+                                // It is necessary to add StopSvgNodeRenderer only as a child of gradient renderer,
                                 // because StopSvgNodeRenderer performs an auxiliary function and should not be drawn at all
-                                ((LinearGradientSvgNodeRenderer)parentRenderer).AddChild(renderer);
+                                ((AbstractGradientSvgNodeRenderer)parentRenderer).AddChild(renderer);
                             }
                         }
                         else {

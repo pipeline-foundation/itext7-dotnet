@@ -22,8 +22,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using iText.Kernel.Colors;
 using iText.Kernel.Geom;
 using iText.Kernel.Pdf;
@@ -45,11 +43,6 @@ namespace iText.Layout {
 
         private static readonly String DESTINATION_FOLDER = TestUtil.GetOutputPath() + "/layout/GridPageMarginsTest/";
 
-        private const String TEXT_BYRON = "When a man hath no freedom to fight for at home,\n" + "    Let him combat for that of his neighbours;\n"
-             + "Let him think of the glories of Greece and of Rome,\n" + "    And get knocked on the head for his labours.\n"
-             + "\n" + "To do good to Mankind is the chivalrous plan,\n" + "    And is always as nobly requited;\n"
-             + "Then battle for Freedom wherever you can,\n" + "    And, if not shot or hanged, you'll get knighted.";
-
         [NUnit.Framework.OneTimeSetUp]
         public static void BeforeClass() {
             CreateOrClearDestinationFolder(DESTINATION_FOLDER);
@@ -60,7 +53,7 @@ namespace iText.Layout {
             String fileName = "gridSectionBreak";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     GridContainer grid = CreateThreeColumnGrid();
                     for (int i = 1; i <= 6; i++) {
@@ -80,7 +73,7 @@ namespace iText.Layout {
             String fileName = "gridTwoSectionBreaks";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     GridContainer grid = CreateThreeColumnGrid();
                     for (int i = 1; i <= 6; i++) {
@@ -102,11 +95,12 @@ namespace iText.Layout {
             String fileName = "gridMultiPageSectionBreak";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     GridContainer grid = CreateThreeColumnGrid();
                     for (int i = 1; i <= 18; i++) {
-                        grid.Add(new Div().Add(new Paragraph("ITEM " + i + "\n" + TEXT_BYRON)).SetBackgroundColor(CellColor(i)));
+                        grid.Add(new Div().Add(new Paragraph("ITEM " + i + "\n" + TestResourceUtil.GetByronStanza())).SetBackgroundColor
+                            (CellColor(i)));
                     }
                     document.Add(grid);
                     document.Add(new SectionBreak(new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins1())));
@@ -122,7 +116,7 @@ namespace iText.Layout {
             String fileName = "gridSameMarginsTwice";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     GridContainer grid1 = CreateThreeColumnGrid();
                     for (int i = 1; i <= 6; i++) {
@@ -148,7 +142,7 @@ namespace iText.Layout {
             String fileName = "gridAltBreaks";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     document.Add(BuildSmallGrid("S1", 1));
                     document.Add(new AreaBreak());
@@ -170,13 +164,14 @@ namespace iText.Layout {
             String fileName = "gridMultiPageDocMargins";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     document.SetPageMargins((pageNum) => pageNum % 2 == 0, new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins2
                         ()));
                     GridContainer grid = CreateThreeColumnGrid();
                     for (int i = 1; i <= 18; i++) {
-                        grid.Add(new Div().Add(new Paragraph("CELL " + i + "\n" + TEXT_BYRON)).SetBackgroundColor(CellColor(i)));
+                        grid.Add(new Div().Add(new Paragraph("CELL " + i + "\n" + TestResourceUtil.GetByronStanza())).SetBackgroundColor
+                            (CellColor(i)));
                     }
                     document.Add(grid);
                 }
@@ -190,7 +185,7 @@ namespace iText.Layout {
             String fileName = "gridPerPageDocMargins";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     document.SetPageMargins((pageNum) => {
                         IList<PageMarginContent> margins = new List<PageMarginContent>();
@@ -201,7 +196,8 @@ namespace iText.Layout {
                     );
                     GridContainer grid = CreateThreeColumnGrid();
                     for (int i = 1; i <= 15; i++) {
-                        grid.Add(new Div().Add(new Paragraph("CELL " + i + "\n" + TEXT_BYRON)).SetBackgroundColor(CellColor(i)));
+                        grid.Add(new Div().Add(new Paragraph("CELL " + i + "\n" + TestResourceUtil.GetByronStanza())).SetBackgroundColor
+                            (CellColor(i)));
                     }
                     document.Add(grid);
                 }
@@ -215,13 +211,14 @@ namespace iText.Layout {
             String fileName = "gridDocMarginsOverriddenBySectionBreak";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     document.SetPageMargins((pageNum) => pageNum % 2 == 0, new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins2
                         ()));
                     GridContainer grid1 = CreateThreeColumnGrid();
                     for (int i = 1; i <= 6; i++) {
-                        grid1.Add(new Div().Add(new Paragraph("S1-" + i + "\n" + TEXT_BYRON)).SetBackgroundColor(CellColor(i)));
+                        grid1.Add(new Div().Add(new Paragraph("S1-" + i + "\n" + TestResourceUtil.GetByronStanza())).SetBackgroundColor
+                            (CellColor(i)));
                     }
                     GridContainer grid2 = CreateTwoColumnGrid();
                     for (int i = 1; i <= 4; i++) {
@@ -241,7 +238,7 @@ namespace iText.Layout {
             String fileName = "gridStaticMarginsAndSectionBreak";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     document.SetMargins(80, 80, 80, 80);
                     GridContainer grid1 = CreateThreeColumnGrid();
@@ -266,12 +263,13 @@ namespace iText.Layout {
             String fileName = "gridPageNumMargins";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     document.SetPageMargins(2, new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins1()));
                     GridContainer grid = CreateThreeColumnGrid();
                     for (int i = 1; i <= 18; i++) {
-                        grid.Add(new Div().Add(new Paragraph("CELL " + i + "\n" + TEXT_BYRON)).SetBackgroundColor(CellColor(i)));
+                        grid.Add(new Div().Add(new Paragraph("CELL " + i + "\n" + TestResourceUtil.GetByronStanza())).SetBackgroundColor
+                            (CellColor(i)));
                     }
                     document.Add(grid);
                 }
@@ -285,7 +283,7 @@ namespace iText.Layout {
             String fileName = "gridElemMarginsSectionBreak";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     GridContainer grid = CreateThreeColumnGrid();
                     grid.SetMargins(40, 40, 40, 40).SetBackgroundColor(new DeviceRgb(220, 220, 220));
@@ -306,25 +304,25 @@ namespace iText.Layout {
             String fileName = "gridItemMarginsDocPageMargins";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     document.SetPageMargins((pageNum) => pageNum % 2 == 0, new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins1
                         ()));
                     GridContainer grid = CreateThreeColumnGrid();
-                    grid.Add(new Div().Add(new Paragraph("LARGE MARGIN\n" + TEXT_BYRON)).SetBackgroundColor(new DeviceRgb(65, 
-                        151, 29)).SetMargins(20, 15, 20, 15));
-                    grid.Add(new Div().Add(new Paragraph("NO MARGIN\n" + TEXT_BYRON)).SetBackgroundColor(new DeviceRgb(209, 247
-                        , 29)).SetMargin(0));
-                    grid.Add(new Div().Add(new Paragraph("LARGE PADDING\n" + TEXT_BYRON)).SetBackgroundColor(new DeviceRgb(78, 
-                        151, 205)).SetPaddings(20, 20, 20, 20));
-                    grid.Add(new Div().Add(new Paragraph("MIXED\n" + TEXT_BYRON)).SetBackgroundColor(new DeviceRgb(255, 165, 0
-                        )).SetMarginTop(30).SetPaddingBottom(30));
-                    grid.Add(new Div().Add(new Paragraph("DEFAULT\n" + TEXT_BYRON)).SetBackgroundColor(new DeviceRgb(200, 100, 
-                        100)));
-                    grid.Add(new Div().Add(new Paragraph("SMALL PADDING\n" + TEXT_BYRON)).SetBackgroundColor(new DeviceRgb(100
-                        , 200, 100)).SetPadding(5));
+                    grid.Add(new Div().Add(new Paragraph("LARGE MARGIN\n" + TestResourceUtil.GetByronStanza())).SetBackgroundColor
+                        (new DeviceRgb(65, 151, 29)).SetMargins(20, 15, 20, 15));
+                    grid.Add(new Div().Add(new Paragraph("NO MARGIN\n" + TestResourceUtil.GetByronStanza())).SetBackgroundColor
+                        (new DeviceRgb(209, 247, 29)).SetMargin(0));
+                    grid.Add(new Div().Add(new Paragraph("LARGE PADDING\n" + TestResourceUtil.GetByronStanza())).SetBackgroundColor
+                        (new DeviceRgb(78, 151, 205)).SetPaddings(20, 20, 20, 20));
+                    grid.Add(new Div().Add(new Paragraph("MIXED\n" + TestResourceUtil.GetByronStanza())).SetBackgroundColor(new 
+                        DeviceRgb(255, 165, 0)).SetMarginTop(30).SetPaddingBottom(30));
+                    grid.Add(new Div().Add(new Paragraph("DEFAULT\n" + TestResourceUtil.GetByronStanza())).SetBackgroundColor(
+                        new DeviceRgb(200, 100, 100)));
+                    grid.Add(new Div().Add(new Paragraph("SMALL PADDING\n" + TestResourceUtil.GetByronStanza())).SetBackgroundColor
+                        (new DeviceRgb(100, 200, 100)).SetPadding(5));
                     document.Add(grid);
-                    document.Add(new Paragraph(RepeatString(TEXT_BYRON, 5)));
+                    document.Add(new Paragraph(TestResourceUtil.RepeatString(TestResourceUtil.GetByronStanza(), 5)));
                 }
             }
             NUnit.Framework.Assert.IsNull(new CompareTool().CompareByContent(outFileName, cmpFileName, DESTINATION_FOLDER
@@ -336,7 +334,7 @@ namespace iText.Layout {
             String fileName = "gridFractionColsSectionBreak";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     GridContainer grid = new GridContainer();
                     IList<TemplateValue> columns = new List<TemplateValue>();
@@ -361,7 +359,7 @@ namespace iText.Layout {
             String fileName = "gridMixedColsDocMargins";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     document.SetPageMargins((pageNum) => pageNum % 2 == 0, new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins1
                         ()));
@@ -373,10 +371,11 @@ namespace iText.Layout {
                     grid.SetProperty(Property.GRID_TEMPLATE_COLUMNS, columns);
                     grid.SetProperty(Property.GRID_FLOW, GridFlow.ROW);
                     for (int i = 1; i <= 9; i++) {
-                        grid.Add(new Div().Add(new Paragraph("CELL " + i + "\n" + TEXT_BYRON)).SetBackgroundColor(CellColor(i)));
+                        grid.Add(new Div().Add(new Paragraph("CELL " + i + "\n" + TestResourceUtil.GetByronStanza())).SetBackgroundColor
+                            (CellColor(i)));
                     }
                     document.Add(grid);
-                    document.Add(new Paragraph(RepeatString(TEXT_BYRON, 4)));
+                    document.Add(new Paragraph(TestResourceUtil.RepeatString(TestResourceUtil.GetByronStanza(), 4)));
                 }
             }
             NUnit.Framework.Assert.IsNull(new CompareTool().CompareByContent(outFileName, cmpFileName, DESTINATION_FOLDER
@@ -388,7 +387,7 @@ namespace iText.Layout {
             String fileName = "gridPercentColsPageSizeSectionBreak";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     GridContainer grid1 = new GridContainer();
                     IList<TemplateValue> columns1 = new List<TemplateValue>();
@@ -419,14 +418,12 @@ namespace iText.Layout {
         }
 
         [NUnit.Framework.Test]
-        [LogMessage(LayoutLogMessageConstant.AREA_BREAK_UNEXPECTED)]
-        [LogMessage(iText.IO.Logs.IoLogMessageConstant.CLIP_ELEMENT, Count = 13)]
+        [LogMessage(LayoutLogMessageConstant.AREA_BREAK_IGNORED)]
         public virtual void AreaBreakInsideNestedGridCellWithDocumentMarginsTest() {
-            //TODO DEVSIX-9976: Update test after fix.
             String fileName = "nestedGridCellAreaBreakDocMargins";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     document.SetPageMargins((pageNum) => pageNum % 2 == 0, new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins1
                         ()));
@@ -435,7 +432,7 @@ namespace iText.Layout {
                     GridContainer innerLeft = CreateTwoColumnGrid();
                     innerLeft.Add(ColoredDiv("LEFT-1", new DeviceRgb(65, 151, 29)));
                     innerLeft.Add(ColoredDiv("LEFT-2", new DeviceRgb(209, 247, 29)));
-                    Div breakCell = new Div().Add(new Paragraph("Before break.")).Add(new AreaBreak()).Add(new Paragraph("After break — should be on even page with margins1."
+                    Div breakCell = new Div().Add(new Paragraph("Before break.")).Add(new AreaBreak()).Add(new Paragraph("After break."
                         ));
                     innerLeft.Add(breakCell);
                     innerLeft.Add(ColoredDiv("LEFT-4", new DeviceRgb(78, 151, 205)));
@@ -458,7 +455,7 @@ namespace iText.Layout {
             String fileName = "nestedGridsDocMargins";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     document.SetPageMargins((pageNum) => pageNum % 2 == 0, new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins2
                         ()));
@@ -466,8 +463,8 @@ namespace iText.Layout {
                     for (int col = 0; col < 3; col++) {
                         GridContainer inner = CreateTwoColumnGrid();
                         for (int i = 1; i <= 4; i++) {
-                            inner.Add(new Div().Add(new Paragraph("C" + col + "-" + i + "\n" + TEXT_BYRON)).SetBackgroundColor(CellColor
-                                (col * 2 + i)));
+                            inner.Add(new Div().Add(new Paragraph("C" + col + "-" + i + "\n" + TestResourceUtil.GetByronStanza())).SetBackgroundColor
+                                (CellColor(col * 2 + i)));
                         }
                         outer.Add(inner);
                     }
@@ -483,7 +480,7 @@ namespace iText.Layout {
             String fileName = "nestedGridsAreaBreak";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     GridContainer outer1 = CreateTwoColumnGrid();
                     for (int col = 0; col < 2; col++) {
@@ -515,7 +512,7 @@ namespace iText.Layout {
             String fileName = "nestedGridsPageSizeSectionBreak";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     GridContainer outer1 = CreateThreeColumnGrid();
                     for (int col = 0; col < 3; col++) {
@@ -548,7 +545,7 @@ namespace iText.Layout {
             String fileName = "deepNestedGridsMargins";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     document.SetPageMargins((pageNum) => pageNum % 2 != 0, new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins1
                         ()));
@@ -559,8 +556,8 @@ namespace iText.Layout {
                         for (int m = 0; m < 2; m++) {
                             GridContainer inner = CreateTwoColumnGrid();
                             for (int i = 1; i <= 2; i++) {
-                                inner.Add(new Div().Add(new Paragraph("O" + o + "M" + m + "I" + i + "\n" + TEXT_BYRON)).SetBackgroundColor
-                                    (CellColor(o * 4 + m * 2 + i)));
+                                inner.Add(new Div().Add(new Paragraph("O" + o + "M" + m + "I" + i + "\n" + TestResourceUtil.GetByronStanza
+                                    ())).SetBackgroundColor(CellColor(o * 4 + m * 2 + i)));
                             }
                             mid.Add(inner);
                         }
@@ -576,10 +573,12 @@ namespace iText.Layout {
         }
 
         [NUnit.Framework.Test]
-        [LogMessage(LayoutLogMessageConstant.AREA_BREAK_UNEXPECTED, Count = 3)]
+        [LogMessage(LayoutLogMessageConstant.GRID_CONTAINER_SHOULD_NOT_CONTAIN_AREA_OR_SECTION_BREAK)]
         public virtual void AreaBreakDirectlyInsideGridContainerTest() {
-            //TODO DEVSIX-9976: Update test after fix.
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(new MemoryStream()))) {
+            String fileName = "areaBreakDirectlyInsideGridContainer";
+            String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
+            String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     document.SetPageMargins((pageNum) => pageNum % 2 == 0, new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins2
                         ()));
@@ -591,17 +590,20 @@ namespace iText.Layout {
                     grid.Add(ColoredDiv("AFTER-1", new DeviceRgb(255, 165, 0)));
                     grid.Add(ColoredDiv("AFTER-2", new DeviceRgb(200, 100, 100)));
                     grid.Add(ColoredDiv("AFTER-3", new DeviceRgb(100, 200, 100)));
-                    NUnit.Framework.Assert.Catch(typeof(NullReferenceException), () => document.Add(grid), "Expected NPE when AreaBreak is directly added inside a grid cell"
-                        );
+                    document.Add(grid);
                 }
             }
+            NUnit.Framework.Assert.IsNull(new CompareTool().CompareByContent(outFileName, cmpFileName, DESTINATION_FOLDER
+                , "diff_" + fileName));
         }
 
         [NUnit.Framework.Test]
-        [LogMessage(LayoutLogMessageConstant.SECTION_BREAK_UNEXPECTED, Count = 3)]
+        [LogMessage(LayoutLogMessageConstant.GRID_CONTAINER_SHOULD_NOT_CONTAIN_AREA_OR_SECTION_BREAK)]
         public virtual void SectionBreakDirectlyInsideGridContainerTest() {
-            //TODO DEVSIX-9976: Update test after fix.
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(new MemoryStream()))) {
+            String fileName = "sectionBreakDirectlyInsideGridContainer";
+            String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
+            String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     document.SetPageMargins((pageNum) => pageNum % 2 == 0, new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins2
                         ()));
@@ -613,21 +615,20 @@ namespace iText.Layout {
                     grid.Add(ColoredDiv("AFTER-1", new DeviceRgb(255, 165, 0)));
                     grid.Add(ColoredDiv("AFTER-2", new DeviceRgb(200, 100, 100)));
                     grid.Add(ColoredDiv("AFTER-3", new DeviceRgb(100, 200, 100)));
-                    NUnit.Framework.Assert.Catch(typeof(NullReferenceException), () => document.Add(grid), "Expected NPE when SectionBreak is nested inside a grid cell"
-                        );
+                    document.Add(grid);
                 }
             }
+            NUnit.Framework.Assert.IsNull(new CompareTool().CompareByContent(outFileName, cmpFileName, DESTINATION_FOLDER
+                , "diff_" + fileName));
         }
 
         [NUnit.Framework.Test]
-        [LogMessage(LayoutLogMessageConstant.SECTION_BREAK_UNEXPECTED)]
-        [LogMessage(iText.IO.Logs.IoLogMessageConstant.CLIP_ELEMENT, Count = 13)]
+        [LogMessage(LayoutLogMessageConstant.SECTION_BREAK_IGNORED)]
         public virtual void SectionBreakInsideNestedGridCellTest() {
-            //TODO DEVSIX-9976: Update test after fix.
             String fileName = "sectionBreakInNestedGrid";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     GridContainer outer = CreateTwoColumnGrid();
                     GridContainer inner = CreateTwoColumnGrid();
@@ -639,7 +640,7 @@ namespace iText.Layout {
                     outer.Add(inner);
                     outer.Add(ColoredDiv("OTHER CELL", new DeviceRgb(78, 151, 205)));
                     document.Add(outer);
-                    document.Add(new Paragraph(RepeatString(TEXT_BYRON, 6)));
+                    document.Add(new Paragraph(TestResourceUtil.RepeatString(TestResourceUtil.GetByronStanza(), 6)));
                     document.Add(new Paragraph("Page 2 — PageMargins1 should be active here if SectionBreak was honoured."));
                 }
             }
@@ -648,14 +649,12 @@ namespace iText.Layout {
         }
 
         [NUnit.Framework.Test]
-        [LogMessage(LayoutLogMessageConstant.AREA_BREAK_UNEXPECTED)]
-        [LogMessage(iText.IO.Logs.IoLogMessageConstant.CLIP_ELEMENT, Count = 13)]
+        [LogMessage(LayoutLogMessageConstant.AREA_BREAK_IGNORED)]
         public virtual void AreaBreakInsideNestedGridCellTest() {
-            //TODO DEVSIX-9976: Update test after fix.
             String fileName = "areaBreakInNestedGrid";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     GridContainer outer = CreateTwoColumnGrid();
                     GridContainer inner = CreateTwoColumnGrid();
@@ -678,7 +677,7 @@ namespace iText.Layout {
             String fileName = "nestedGridInnerElemMarginsDocPageMargins";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     document.SetPageMargins((pageNum) => pageNum % 2 == 0, new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins1
                         ()));
@@ -701,7 +700,41 @@ namespace iText.Layout {
                     outer.Add(innerLeft);
                     outer.Add(innerRight);
                     document.Add(outer);
-                    document.Add(new Paragraph(RepeatString(TEXT_BYRON, 4)));
+                    document.Add(new Paragraph(TestResourceUtil.RepeatString(TestResourceUtil.GetByronStanza(), 4)));
+                }
+            }
+            NUnit.Framework.Assert.IsNull(new CompareTool().CompareByContent(outFileName, cmpFileName, DESTINATION_FOLDER
+                , "diff_" + fileName));
+        }
+
+        [NUnit.Framework.Test]
+        [LogMessage(LayoutLogMessageConstant.AREA_BREAK_IGNORED, Count = 5)]
+        [LogMessage(LayoutLogMessageConstant.SECTION_BREAK_IGNORED, Count = 5)]
+        public virtual void GridWithTableHeaderAndFooterWithAreaBreakAndSectionBreakTest() {
+            String fileName = "gridWithTableHeaderAndFooter";
+            String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
+            String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
+                using (Document document = new Document(pdfDoc)) {
+                    GridContainer gridContainer = CreateTwoColumnGrid();
+                    Table table = new Table(3);
+                    Cell headerCell = new Cell().Add(new Div().Add(new Paragraph("Before section break")).Add(new SectionBreak
+                        (new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins1()))).Add(new Paragraph("After section break")
+                        ));
+                    table.AddHeaderCell(headerCell);
+                    table.AddHeaderCell(new Cell());
+                    table.AddHeaderCell(new Cell());
+                    table.AddCell("Table cell content 1");
+                    table.AddCell("Table cell content 2");
+                    table.AddCell("Table cell content 3");
+                    Cell footerCell = new Cell().Add(new Div().Add(new Paragraph("Before area break")).Add(new AreaBreak()).Add
+                        (new Paragraph("After area break")));
+                    table.AddFooterCell(footerCell);
+                    table.AddFooterCell(new Cell());
+                    table.AddFooterCell(new Cell());
+                    gridContainer.Add(table);
+                    gridContainer.Add(ColoredDiv("Second column div", new DeviceRgb(65, 151, 29)));
+                    document.Add(gridContainer);
                 }
             }
             NUnit.Framework.Assert.IsNull(new CompareTool().CompareByContent(outFileName, cmpFileName, DESTINATION_FOLDER
@@ -746,14 +779,6 @@ namespace iText.Layout {
 
         private static Div ColoredDiv(String label, DeviceRgb color) {
             return new Div().Add(new Paragraph(label)).SetBackgroundColor(color).SetMargin(4).SetPadding(6);
-        }
-
-        private static String RepeatString(String s, int n) {
-            StringBuilder sb = new StringBuilder(s.Length * n);
-            for (int i = 0; i < n; i++) {
-                sb.Append(s);
-            }
-            return sb.ToString();
         }
     }
 }

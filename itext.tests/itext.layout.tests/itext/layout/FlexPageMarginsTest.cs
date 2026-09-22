@@ -22,8 +22,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using iText.Kernel.Colors;
 using iText.Kernel.Geom;
 using iText.Kernel.Pdf;
@@ -45,11 +43,6 @@ namespace iText.Layout {
 
         private static readonly String DESTINATION_FOLDER = TestUtil.GetOutputPath() + "/layout/FlexPageMarginsTest/";
 
-        private const String TEXT_BYRON = "When a man hath no freedom to fight for at home,\n" + "    Let him combat for that of his neighbours;\n"
-             + "Let him think of the glories of Greece and of Rome,\n" + "    And get knocked on the head for his labours.\n"
-             + "\n" + "To do good to Mankind is the chivalrous plan,\n" + "    And is always as nobly requited;\n"
-             + "Then battle for Freedom wherever you can,\n" + "    And, if not shot or hanged, you'll get knighted.";
-
         [NUnit.Framework.OneTimeSetUp]
         public static void BeforeClass() {
             CreateOrClearDestinationFolder(DESTINATION_FOLDER);
@@ -60,7 +53,7 @@ namespace iText.Layout {
             String fileName = "flexSectionBreak";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     Div flex = CreateRowFlexContainer();
                     flex.Add(ColoredDiv("FLEX ITEM 1", new DeviceRgb(65, 151, 29)));
@@ -80,7 +73,7 @@ namespace iText.Layout {
             String fileName = "flexTwoSectionBreaks";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     Div flex = CreateRowFlexContainer();
                     flex.Add(ColoredDiv("ITEM A", new DeviceRgb(65, 151, 29)));
@@ -101,7 +94,7 @@ namespace iText.Layout {
             String fileName = "flexAltBreaks";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     Div flex1 = CreateRowFlexContainer();
                     flex1.Add(ColoredDiv("S1-A", new DeviceRgb(65, 151, 29)));
@@ -132,7 +125,7 @@ namespace iText.Layout {
             String fileName = "flexMultiPageSectionBreak";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     Div flex = CreateRowFlexContainer();
                     for (int i = 1; i <= 20; i++) {
@@ -154,7 +147,7 @@ namespace iText.Layout {
             String fileName = "flexMultiPageDocMargins";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     document.SetPageMargins((pageNum) => pageNum % 2 == 0, new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins2
                         ()));
@@ -162,9 +155,9 @@ namespace iText.Layout {
                     for (int i = 0; i < 3; i++) {
                         Div row = CreateRowFlexContainer();
                         for (int j = 0; j < 3; j++) {
-                            row.Add(new Div().Add(new Paragraph("R" + i + "C" + j + "\n" + TEXT_BYRON)).SetWidth(UnitValue.CreatePercentValue
-                                (30)).SetBackgroundColor(j % 2 == 0 ? new DeviceRgb(65, 151, 29) : new DeviceRgb(209, 247, 29)).SetMargin
-                                (5));
+                            row.Add(new Div().Add(new Paragraph("R" + i + "C" + j + "\n" + TestResourceUtil.GetByronStanza())).SetWidth
+                                (UnitValue.CreatePercentValue(30)).SetBackgroundColor(j % 2 == 0 ? new DeviceRgb(65, 151, 29) : new DeviceRgb
+                                (209, 247, 29)).SetMargin(5));
                         }
                         flex.Add(row);
                     }
@@ -180,7 +173,7 @@ namespace iText.Layout {
             String fileName = "flexPerPageDocMargins";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     document.SetPageMargins((pageNum) => {
                         IList<PageMarginContent> margins = new List<PageMarginContent>();
@@ -193,8 +186,9 @@ namespace iText.Layout {
                     for (int i = 0; i < 4; i++) {
                         Div row = CreateRowFlexContainer();
                         for (int j = 0; j < 3; j++) {
-                            row.Add(new Div().Add(new Paragraph(TEXT_BYRON)).SetWidth(UnitValue.CreatePercentValue(30)).SetBackgroundColor
-                                (j % 2 == 0 ? new DeviceRgb(65, 151, 29) : new DeviceRgb(209, 247, 29)).SetMargin(4));
+                            row.Add(new Div().Add(new Paragraph(TestResourceUtil.GetByronStanza())).SetWidth(UnitValue.CreatePercentValue
+                                (30)).SetBackgroundColor(j % 2 == 0 ? new DeviceRgb(65, 151, 29) : new DeviceRgb(209, 247, 29)).SetMargin
+                                (4));
                         }
                         flex.Add(row);
                     }
@@ -210,14 +204,14 @@ namespace iText.Layout {
             String fileName = "flexDocMarginsOverriddenBySectionBreak";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     document.SetPageMargins((pageNum) => pageNum % 2 == 0, new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins2
                         ()));
                     Div flex1 = CreateRowFlexContainer();
                     flex1.Add(ColoredDiv("S1-A", new DeviceRgb(65, 151, 29)));
                     flex1.Add(ColoredDiv("S1-B", new DeviceRgb(209, 247, 29)));
-                    flex1.Add(new Paragraph(RepeatString(TEXT_BYRON, 3)));
+                    flex1.Add(new Paragraph(TestResourceUtil.RepeatString(TestResourceUtil.GetByronStanza(), 3)));
                     Div flex2 = CreateRowFlexContainer();
                     flex2.Add(ColoredDiv("S2-A", new DeviceRgb(78, 151, 205)));
                     flex2.Add(ColoredDiv("S2-B", new DeviceRgb(255, 165, 0)));
@@ -235,7 +229,7 @@ namespace iText.Layout {
             String fileName = "flexElementMarginsSectionBreak";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     Div flex = CreateRowFlexContainer();
                     flex.SetMargins(50, 50, 50, 50).SetBackgroundColor(new DeviceRgb(220, 220, 220));
@@ -256,22 +250,22 @@ namespace iText.Layout {
             String fileName = "flexItemMarginsDocPageMargins";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     document.SetPageMargins((pageNum) => pageNum % 2 == 0, new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins1
                         ()));
                     Div flex = CreateRowFlexContainer();
-                    Div item1 = new Div().Add(new Paragraph("LARGE MARGIN\n" + TEXT_BYRON)).SetBackgroundColor(new DeviceRgb(65
-                        , 151, 29)).SetWidth(UnitValue.CreatePercentValue(28)).SetMargins(30, 20, 30, 20);
-                    Div item2 = new Div().Add(new Paragraph("NO MARGIN\n" + TEXT_BYRON)).SetBackgroundColor(new DeviceRgb(209, 
-                        247, 29)).SetWidth(UnitValue.CreatePercentValue(28)).SetMargin(0);
-                    Div item3 = new Div().Add(new Paragraph("LARGE PADDING\n" + TEXT_BYRON)).SetBackgroundColor(new DeviceRgb(
-                        78, 151, 205)).SetWidth(UnitValue.CreatePercentValue(28)).SetPaddings(25, 25, 25, 25);
+                    Div item1 = new Div().Add(new Paragraph("LARGE MARGIN\n" + TestResourceUtil.GetByronStanza())).SetBackgroundColor
+                        (new DeviceRgb(65, 151, 29)).SetWidth(UnitValue.CreatePercentValue(28)).SetMargins(30, 20, 30, 20);
+                    Div item2 = new Div().Add(new Paragraph("NO MARGIN\n" + TestResourceUtil.GetByronStanza())).SetBackgroundColor
+                        (new DeviceRgb(209, 247, 29)).SetWidth(UnitValue.CreatePercentValue(28)).SetMargin(0);
+                    Div item3 = new Div().Add(new Paragraph("LARGE PADDING\n" + TestResourceUtil.GetByronStanza())).SetBackgroundColor
+                        (new DeviceRgb(78, 151, 205)).SetWidth(UnitValue.CreatePercentValue(28)).SetPaddings(25, 25, 25, 25);
                     flex.Add(item1);
                     flex.Add(item2);
                     flex.Add(item3);
                     document.Add(flex);
-                    document.Add(new Paragraph(RepeatString(TEXT_BYRON, 8)));
+                    document.Add(new Paragraph(TestResourceUtil.RepeatString(TestResourceUtil.GetByronStanza(), 8)));
                 }
             }
             NUnit.Framework.Assert.IsNull(new CompareTool().CompareByContent(outFileName, cmpFileName, DESTINATION_FOLDER
@@ -283,7 +277,7 @@ namespace iText.Layout {
             String fileName = "flexStaticMarginsAndSectionBreak";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     document.SetMargins(80, 80, 80, 80);
                     Div flex = CreateRowFlexContainer();
@@ -292,8 +286,8 @@ namespace iText.Layout {
                     flex.Add(ColoredDiv("ITEM 3", new DeviceRgb(78, 151, 205)));
                     document.Add(flex);
                     document.Add(new SectionBreak(new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins2())));
-                    document.Add(new Div().Add(new Paragraph(RepeatString(TEXT_BYRON, 3))).SetBackgroundColor(new DeviceRgb(255
-                        , 165, 0)));
+                    document.Add(new Div().Add(new Paragraph(TestResourceUtil.RepeatString(TestResourceUtil.GetByronStanza(), 
+                        3))).SetBackgroundColor(new DeviceRgb(255, 165, 0)));
                 }
             }
             NUnit.Framework.Assert.IsNull(new CompareTool().CompareByContent(outFileName, cmpFileName, DESTINATION_FOLDER
@@ -305,13 +299,13 @@ namespace iText.Layout {
             String fileName = "flexPageNumMargins";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     document.SetPageMargins(1, new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins1()));
                     Div flex = CreateColumnFlexContainer();
                     for (int i = 0; i < 3; i++) {
-                        flex.Add(new Div().Add(new Paragraph("ITEM " + i + "\n" + TEXT_BYRON)).SetBackgroundColor(i % 2 == 0 ? new 
-                            DeviceRgb(65, 151, 29) : new DeviceRgb(209, 247, 29)));
+                        flex.Add(new Div().Add(new Paragraph("ITEM " + i + "\n" + TestResourceUtil.GetByronStanza())).SetBackgroundColor
+                            (i % 2 == 0 ? new DeviceRgb(65, 151, 29) : new DeviceRgb(209, 247, 29)));
                     }
                     document.Add(flex);
                 }
@@ -325,7 +319,7 @@ namespace iText.Layout {
             String fileName = "nestedFlexSectionBreak";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     Div outer1 = CreateColumnFlexContainer();
                     Div inner1 = CreateRowFlexContainer();
@@ -353,7 +347,7 @@ namespace iText.Layout {
             String fileName = "deepNestedFlexMargins";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     document.SetPageMargins((pageNum) => pageNum % 2 != 0, new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins1
                         ()));
@@ -363,10 +357,10 @@ namespace iText.Layout {
                         for (int col = 0; col < 2; col++) {
                             Div innerCol = CreateColumnFlexContainer();
                             innerCol.SetWidth(UnitValue.CreatePercentValue(45)).SetMargin(4);
-                            innerCol.Add(new Div().Add(new Paragraph("R" + row + "C" + col + "-TOP\n" + TEXT_BYRON)).SetBackgroundColor
-                                (col == 0 ? new DeviceRgb(65, 151, 29) : new DeviceRgb(209, 247, 29)));
-                            innerCol.Add(new Div().Add(new Paragraph("R" + row + "C" + col + "-BOT\n" + TEXT_BYRON)).SetBackgroundColor
-                                (col == 0 ? new DeviceRgb(78, 151, 205) : new DeviceRgb(255, 165, 0)));
+                            innerCol.Add(new Div().Add(new Paragraph("R" + row + "C" + col + "-TOP\n" + TestResourceUtil.GetByronStanza
+                                ())).SetBackgroundColor(col == 0 ? new DeviceRgb(65, 151, 29) : new DeviceRgb(209, 247, 29)));
+                            innerCol.Add(new Div().Add(new Paragraph("R" + row + "C" + col + "-BOT\n" + TestResourceUtil.GetByronStanza
+                                ())).SetBackgroundColor(col == 0 ? new DeviceRgb(78, 151, 205) : new DeviceRgb(255, 165, 0)));
                             midRow.Add(innerCol);
                         }
                         outerCol.Add(midRow);
@@ -381,25 +375,31 @@ namespace iText.Layout {
         }
 
         [NUnit.Framework.Test]
-        //TODO DEVSIX-9976: Update test after fix.
-        [LogMessage(LayoutLogMessageConstant.SECTION_BREAK_UNEXPECTED)]
-        public virtual void SectionBreakInsideFlexContainerThrowsTest() {
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(new MemoryStream()))) {
+        [LogMessage(LayoutLogMessageConstant.FLEX_CONTAINER_SHOULD_NOT_CONTAIN_AREA_OR_SECTION_BREAK)]
+        public virtual void SectionBreakInsideFlexContainerTest() {
+            String fileName = "sectionBreakInsideFlexContainer";
+            String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
+            String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     Div flex = CreateRowFlexContainer();
                     flex.Add(ColoredDiv("ITEM A", new DeviceRgb(65, 151, 29)));
                     flex.Add(new SectionBreak(new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins1())));
                     flex.Add(ColoredDiv("ITEM B", new DeviceRgb(209, 247, 29)));
-                    NUnit.Framework.Assert.Catch(typeof(NotSupportedException), () => document.Add(flex), "Expected UnsupportedOperationException when SectionBreak is a flex child"
-                        );
+                    document.Add(flex);
                 }
             }
+            NUnit.Framework.Assert.IsNull(new CompareTool().CompareByContent(outFileName, cmpFileName, DESTINATION_FOLDER
+                , "diff_" + fileName));
         }
 
         [NUnit.Framework.Test]
-        public virtual void SectionBreakOnFlexItemChildThrowsTest() {
-            //TODO DEVSIX-9976: Update test after fix.
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(new MemoryStream()))) {
+        [LogMessage(LayoutLogMessageConstant.SECTION_BREAK_IGNORED)]
+        public virtual void SectionBreakOnFlexItemChildTest() {
+            String fileName = "sectionBreakOnFlexItemChild";
+            String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
+            String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     Div flex = CreateRowFlexContainer();
                     Div item = new Div().SetBackgroundColor(new DeviceRgb(65, 151, 29)).SetWidth(UnitValue.CreatePercentValue(
@@ -408,22 +408,20 @@ namespace iText.Layout {
                     item.Add(new SectionBreak(new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins1())));
                     item.Add(new Paragraph("Content after break."));
                     flex.Add(item);
-                    NUnit.Framework.Assert.Catch(typeof(Exception), () => document.Add(flex), "Expected a RuntimeException when SectionBreak is nested inside a flex item"
-                        );
+                    document.Add(flex);
                 }
             }
+            NUnit.Framework.Assert.IsNull(new CompareTool().CompareByContent(outFileName, cmpFileName, DESTINATION_FOLDER
+                , "diff_" + fileName));
         }
 
         [NUnit.Framework.Test]
-        [LogMessage(iText.IO.Logs.IoLogMessageConstant.CLIP_ELEMENT)]
-        [LogMessage(LayoutLogMessageConstant.AREA_BREAK_UNEXPECTED)]
-        [LogMessage(iText.IO.Logs.IoLogMessageConstant.OCCUPIED_AREA_HAS_NOT_BEEN_INITIALIZED)]
+        [LogMessage(LayoutLogMessageConstant.AREA_BREAK_IGNORED)]
         public virtual void AreaBreakOnFlexItemChildTest() {
-            //TODO DEVSIX-9976: Update test after fix.
             String fileName = "flexItemChildAreaBreak";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     Div flex = CreateColumnFlexContainer();
                     Div item = new Div().SetBackgroundColor(new DeviceRgb(209, 247, 29)).SetWidth(UnitValue.CreatePercentValue
@@ -442,19 +440,19 @@ namespace iText.Layout {
         }
 
         [NUnit.Framework.Test]
+        [LogMessage(LayoutLogMessageConstant.FLEX_CONTAINER_SHOULD_NOT_CONTAIN_AREA_OR_SECTION_BREAK)]
         public virtual void AreaBreakInFlexWithDocumentMarginsTest() {
-            //TODO DEVSIX-9976: Update test after fix.
             String fileName = "flexAreaBreakDocMargins";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     document.SetPageMargins((pageNum) => pageNum % 2 == 0, new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins1
                         ()));
                     Div flex = CreateColumnFlexContainer();
-                    flex.Add(ColoredDiv("FLEX - PAGE 1", new DeviceRgb(65, 151, 29)));
+                    flex.Add(ColoredDiv("Before break.", new DeviceRgb(65, 151, 29)));
                     flex.Add(new AreaBreak());
-                    flex.Add(ColoredDiv("FLEX - PAGE 2", new DeviceRgb(209, 247, 29)));
+                    flex.Add(ColoredDiv("After break.", new DeviceRgb(209, 247, 29)));
                     document.Add(flex);
                 }
             }
@@ -463,20 +461,20 @@ namespace iText.Layout {
         }
 
         [NUnit.Framework.Test]
+        [LogMessage(LayoutLogMessageConstant.FLEX_CONTAINER_SHOULD_NOT_CONTAIN_AREA_OR_SECTION_BREAK)]
         public virtual void AreaBreakInFlexThenSectionBreakTest() {
-            //TODO DEVSIX-9976: Update test after fix.
             String fileName = "flexAreaBreakThenSectionBreak";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     Div flex = CreateColumnFlexContainer();
-                    flex.Add(ColoredDiv("FLEX - PAGE 1", new DeviceRgb(65, 151, 29)));
+                    flex.Add(ColoredDiv("Before break.", new DeviceRgb(65, 151, 29)));
                     flex.Add(new AreaBreak());
-                    flex.Add(ColoredDiv("FLEX - PAGE 2", new DeviceRgb(209, 247, 29)));
+                    flex.Add(ColoredDiv("After break.", new DeviceRgb(209, 247, 29)));
                     document.Add(flex);
                     document.Add(new SectionBreak(new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins2())));
-                    document.Add(new Paragraph("Page 3 — margins2 active after section break."));
+                    document.Add(new Paragraph("Page 2 — margins2 active after section break."));
                 }
             }
             NUnit.Framework.Assert.IsNull(new CompareTool().CompareByContent(outFileName, cmpFileName, DESTINATION_FOLDER
@@ -484,12 +482,12 @@ namespace iText.Layout {
         }
 
         [NUnit.Framework.Test]
+        [LogMessage(LayoutLogMessageConstant.FLEX_CONTAINER_SHOULD_NOT_CONTAIN_AREA_OR_SECTION_BREAK, Count = 2)]
         public virtual void MultipleAreaBreaksInNestedFlexWithDocumentMarginsTest() {
-            //TODO DEVSIX-9976: Update test after fix.
             String fileName = "nestedFlexMultiAreaBreakDocMargins";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     document.SetPageMargins((pageNum) => pageNum % 2 != 0, new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins1
                         ()));
@@ -516,15 +514,12 @@ namespace iText.Layout {
         }
 
         [NUnit.Framework.Test]
-        [LogMessage(iText.IO.Logs.IoLogMessageConstant.CLIP_ELEMENT)]
-        [LogMessage(LayoutLogMessageConstant.AREA_BREAK_UNEXPECTED)]
-        [LogMessage(iText.IO.Logs.IoLogMessageConstant.OCCUPIED_AREA_HAS_NOT_BEEN_INITIALIZED, Count = 2)]
+        [LogMessage(LayoutLogMessageConstant.AREA_BREAK_IGNORED)]
         public virtual void AreaBreakOnNestedFlexItemWithDocumentMarginsTest() {
-            //TODO DEVSIX-9976: Update test after fix.
             String fileName = "nestedFlexItemAreaBreakDocMargins";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     document.SetPageMargins((pageNum) => pageNum % 2 == 0, new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins2
                         ()));
@@ -532,9 +527,9 @@ namespace iText.Layout {
                     Div item = new Div().SetBackgroundColor(new DeviceRgb(220, 220, 255)).SetWidth(UnitValue.CreatePercentValue
                         (80));
                     item.Add(new Paragraph("Item content before nested area break."));
-                    item.Add(new Div().Add(new Paragraph("Inner div before break.")).Add(new Paragraph(RepeatString(TEXT_BYRON
-                        , 5))).Add(new AreaBreak()).Add(new Paragraph("Inner div after break.")).SetBackgroundColor(new DeviceRgb
-                        (209, 247, 29)));
+                    item.Add(new Div().Add(new Paragraph("Inner div before break.")).Add(new Paragraph(TestResourceUtil.RepeatString
+                        (TestResourceUtil.GetByronStanza(), 5))).Add(new AreaBreak()).Add(new Paragraph("Inner div after break."
+                        )).SetBackgroundColor(new DeviceRgb(209, 247, 29)));
                     item.Add(new Paragraph("Item content after nested area break."));
                     flex.Add(ColoredDiv("ABOVE", new DeviceRgb(65, 151, 29)));
                     flex.Add(item);
@@ -547,12 +542,12 @@ namespace iText.Layout {
         }
 
         [NUnit.Framework.Test]
+        [LogMessage(LayoutLogMessageConstant.FLEX_CONTAINER_SHOULD_NOT_CONTAIN_AREA_OR_SECTION_BREAK)]
         public virtual void AreaBreakWithPageSizeInFlexWithDocumentMarginsTest() {
-            //TODO DEVSIX-9976: Update test after fix.
             String fileName = "flexAreaBreakPageSizeDocMargins";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     document.SetPageMargins((pageNum) => pageNum % 2 == 0, new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins1
                         ()));
@@ -572,7 +567,7 @@ namespace iText.Layout {
             String fileName = "nestedFlexOuterElemMarginsDocMargins";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     document.SetPageMargins((pageNum) => pageNum % 2 == 0, new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins1
                         ()));
@@ -589,7 +584,7 @@ namespace iText.Layout {
                     outer.Add(inner1);
                     outer.Add(inner2);
                     document.Add(outer);
-                    document.Add(new Paragraph(RepeatString(TEXT_BYRON, 6)));
+                    document.Add(new Paragraph(TestResourceUtil.RepeatString(TestResourceUtil.GetByronStanza(), 6)));
                 }
             }
             NUnit.Framework.Assert.IsNull(new CompareTool().CompareByContent(outFileName, cmpFileName, DESTINATION_FOLDER
@@ -601,7 +596,7 @@ namespace iText.Layout {
             String fileName = "nestedFlexAsymmetricDocMargins";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     document.SetPageMargins((pageNum) => pageNum % 2 == 0, new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins2
                         ()));
@@ -617,7 +612,7 @@ namespace iText.Layout {
                     rightCol.SetWidth(UnitValue.CreatePercentValue(45)).SetMargin(5);
                     rightCol.Add(ColoredDiv("R A", new DeviceRgb(255, 165, 0)));
                     rightCol.Add(ColoredDiv("R B", new DeviceRgb(200, 100, 100)));
-                    rightCol.Add(new Paragraph(RepeatString(TEXT_BYRON, 3)));
+                    rightCol.Add(new Paragraph(TestResourceUtil.RepeatString(TestResourceUtil.GetByronStanza(), 3)));
                     outer.Add(leftCol);
                     outer.Add(rightCol);
                     document.Add(outer);
@@ -632,16 +627,16 @@ namespace iText.Layout {
             String fileName = "nestedFlexOverflowStaticMargins";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     document.SetMargins(80, 80, 80, 80);
                     Div outer = CreateColumnFlexContainer();
                     for (int i = 0; i < 4; i++) {
                         Div row = CreateRowFlexContainer();
                         for (int j = 0; j < 3; j++) {
-                            row.Add(new Div().Add(new Paragraph("R" + i + "C" + j + "\n" + TEXT_BYRON)).SetWidth(UnitValue.CreatePercentValue
-                                (30)).SetBackgroundColor(j % 2 == 0 ? new DeviceRgb(65, 151, 29) : new DeviceRgb(209, 247, 29)).SetMargin
-                                (4));
+                            row.Add(new Div().Add(new Paragraph("R" + i + "C" + j + "\n" + TestResourceUtil.GetByronStanza())).SetWidth
+                                (UnitValue.CreatePercentValue(30)).SetBackgroundColor(j % 2 == 0 ? new DeviceRgb(65, 151, 29) : new DeviceRgb
+                                (209, 247, 29)).SetMargin(4));
                         }
                         outer.Add(row);
                     }
@@ -657,16 +652,16 @@ namespace iText.Layout {
             String fileName = "nestedFlexOverflowPageNumMargins";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     document.SetPageMargins(3, new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins1()));
                     Div outer = CreateColumnFlexContainer();
                     for (int i = 0; i < 3; i++) {
                         Div row = CreateRowFlexContainer();
                         for (int j = 0; j < 3; j++) {
-                            row.Add(new Div().Add(new Paragraph("R" + i + "C" + j + "\n" + TEXT_BYRON)).SetWidth(UnitValue.CreatePercentValue
-                                (30)).SetBackgroundColor(j % 2 == 0 ? new DeviceRgb(65, 151, 29) : new DeviceRgb(209, 247, 29)).SetMargin
-                                (4));
+                            row.Add(new Div().Add(new Paragraph("R" + i + "C" + j + "\n" + TestResourceUtil.GetByronStanza())).SetWidth
+                                (UnitValue.CreatePercentValue(30)).SetBackgroundColor(j % 2 == 0 ? new DeviceRgb(65, 151, 29) : new DeviceRgb
+                                (209, 247, 29)).SetMargin(4));
                         }
                         outer.Add(row);
                     }
@@ -682,25 +677,215 @@ namespace iText.Layout {
             String fileName = "nestedFlexSameMarginsTwice";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDoc)) {
                     Div flex1 = CreateColumnFlexContainer();
                     Div row1 = CreateRowFlexContainer();
                     row1.Add(ColoredDiv("S1 ITEM A", new DeviceRgb(65, 151, 29)));
                     row1.Add(ColoredDiv("S1 ITEM B", new DeviceRgb(209, 247, 29)));
                     flex1.Add(row1);
-                    flex1.Add(new Paragraph(RepeatString(TEXT_BYRON, 3)));
+                    flex1.Add(new Paragraph(TestResourceUtil.RepeatString(TestResourceUtil.GetByronStanza(), 3)));
                     Div flex2 = CreateColumnFlexContainer();
                     Div row2 = CreateRowFlexContainer();
                     row2.Add(ColoredDiv("S2 ITEM A", new DeviceRgb(78, 151, 205)));
                     row2.Add(ColoredDiv("S2 ITEM B", new DeviceRgb(255, 165, 0)));
                     flex2.Add(row2);
-                    flex2.Add(new Paragraph(RepeatString(TEXT_BYRON, 3)));
+                    flex2.Add(new Paragraph(TestResourceUtil.RepeatString(TestResourceUtil.GetByronStanza(), 3)));
                     document.Add(flex1);
                     document.Add(new SectionBreak(new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins1())));
                     document.Add(flex2);
                     document.Add(new SectionBreak(new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins1())));
                     document.Add(new Paragraph("Third section — same margins again."));
+                }
+            }
+            NUnit.Framework.Assert.IsNull(new CompareTool().CompareByContent(outFileName, cmpFileName, DESTINATION_FOLDER
+                , "diff_" + fileName));
+        }
+
+        [NUnit.Framework.Test]
+        [LogMessage(LayoutLogMessageConstant.SECTION_BREAK_IGNORED, Count = 4)]
+        [LogMessage(LayoutLogMessageConstant.AREA_BREAK_IGNORED, Count = 4)]
+        public virtual void FlexWithTableHeaderAndFooterWithAreaBreakAndSectionBreakTest() {
+            String fileName = "flexWithTableHeaderAndFooter";
+            String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
+            String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
+            using (PdfDocument pdfDoc = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
+                using (Document document = new Document(pdfDoc)) {
+                    Div flex = CreateRowFlexContainer();
+                    Table table = new Table(3);
+                    Cell headerCell = new Cell().Add(new Div().Add(new Paragraph("Before section break")).Add(new SectionBreak
+                        (new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins1()))).Add(new Paragraph("After section break")
+                        ));
+                    table.AddHeaderCell(headerCell);
+                    table.AddHeaderCell(new Cell());
+                    table.AddHeaderCell(new Cell());
+                    table.AddCell("Table cell content 1");
+                    table.AddCell("Table cell content 2");
+                    table.AddCell("Table cell content 3");
+                    Cell footerCell = new Cell().Add(new Div().Add(new Paragraph("Before area break")).Add(new AreaBreak()).Add
+                        (new Paragraph("After area break")));
+                    table.AddFooterCell(footerCell);
+                    table.AddFooterCell(new Cell());
+                    table.AddFooterCell(new Cell());
+                    flex.Add(table);
+                    flex.Add(ColoredDiv("Second element", new DeviceRgb(65, 151, 29)));
+                    document.Add(flex);
+                }
+            }
+            NUnit.Framework.Assert.IsNull(new CompareTool().CompareByContent(outFileName, cmpFileName, DESTINATION_FOLDER
+                , "diff_" + fileName));
+        }
+
+        [NUnit.Framework.Test]
+        public virtual void NoMarginsOnProcessedPageTest() {
+            String fileName = "noMarginsOnProcessedPage";
+            String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
+            String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
+            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+                using (Document document = new Document(pdfDoc)) {
+                    Div firstPageFlex = CreateColumnFlexContainer();
+                    for (int i = 0; i < 3; i++) {
+                        Div row = CreateRowFlexContainer();
+                        for (int j = 0; j < 3; j++) {
+                            row.Add(new Div().Add(new Paragraph("R" + i + "C" + j + "\n" + TestResourceUtil.GetByronStanza())).SetWidth
+                                (UnitValue.CreatePercentValue(30)).SetBackgroundColor(j % 2 == 0 ? new DeviceRgb(65, 151, 29) : new DeviceRgb
+                                (209, 247, 29)).SetMargin(5));
+                        }
+                        firstPageFlex.Add(row);
+                    }
+                    document.Add(firstPageFlex);
+                    document.SetPageMargins((pageNum) => pageNum % 2 == 0, new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins2
+                        ()));
+                }
+            }
+            NUnit.Framework.Assert.IsNull(new CompareTool().CompareByContent(outFileName, cmpFileName, DESTINATION_FOLDER
+                , "diff_" + fileName));
+        }
+
+        [NUnit.Framework.Test]
+        public virtual void MarginsDrawOnLaterFlexPageTest() {
+            String fileName = "marginsDrawOnLaterFlexPage";
+            String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
+            String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
+            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+                using (Document document = new Document(pdfDoc)) {
+                    Div firstPageFlex = CreateRowFlexContainer();
+                    firstPageFlex.Add(ColoredDiv("no margins", new DeviceRgb(65, 151, 29)));
+                    firstPageFlex.Add(ColoredDiv("should be on this page", new DeviceRgb(209, 247, 29)));
+                    document.Add(firstPageFlex);
+                    document.SetPageMargins((pageNum) => pageNum < 5, new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins2(
+                        )));
+                    document.Add(new AreaBreak());
+                    Div secondPageFlex = CreateRowFlexContainer();
+                    secondPageFlex.Add(ColoredDiv("all margins", new DeviceRgb(78, 151, 205)));
+                    secondPageFlex.Add(ColoredDiv("should be presented", new DeviceRgb(255, 165, 0)));
+                    document.Add(secondPageFlex);
+                }
+            }
+            NUnit.Framework.Assert.IsNull(new CompareTool().CompareByContent(outFileName, cmpFileName, DESTINATION_FOLDER
+                , "diff_" + fileName));
+        }
+
+        [NUnit.Framework.Test]
+        public virtual void LatePredicateMarginsNotAppliedTest() {
+            String fileName = "latePredicateMarginsNotApplied";
+            String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
+            String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
+            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+                using (Document document = new Document(pdfDoc)) {
+                    Div firstPageFlex = CreateRowFlexContainer();
+                    firstPageFlex.Add(ColoredDiv("content added", new DeviceRgb(65, 151, 29)));
+                    firstPageFlex.Add(ColoredDiv("before margins", new DeviceRgb(209, 247, 29)));
+                    document.Add(firstPageFlex);
+                    document.SetPageMargins((pageNum) => pageNum < 5, new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins2(
+                        )));
+                    Div samePageFlex = CreateRowFlexContainer();
+                    samePageFlex.Add(ColoredDiv("so no margins", new DeviceRgb(78, 151, 205)));
+                    samePageFlex.Add(ColoredDiv("should be applied", new DeviceRgb(255, 165, 0)));
+                    document.Add(samePageFlex);
+                }
+            }
+            NUnit.Framework.Assert.IsNull(new CompareTool().CompareByContent(outFileName, cmpFileName, DESTINATION_FOLDER
+                , "diff_" + fileName));
+        }
+
+        [NUnit.Framework.Test]
+        public virtual void LatePageMarginsAppliedOnContentTest() {
+            String fileName = "latePageMarginsAppliedOnContent";
+            String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
+            String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
+            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+                using (Document document = new Document(pdfDoc)) {
+                    Div firstPageFlex = CreateRowFlexContainer();
+                    firstPageFlex.Add(ColoredDiv("content added", new DeviceRgb(65, 151, 29)));
+                    firstPageFlex.Add(ColoredDiv("before margins", new DeviceRgb(209, 247, 29)));
+                    document.Add(firstPageFlex);
+                    document.SetPageMargins(1, new PageMarginBoxes(PageMarginsTestUtil.GetPageMargins2()));
+                    Div samePageFlex = CreateRowFlexContainer();
+                    samePageFlex.Add(ColoredDiv("margins expected", new DeviceRgb(78, 151, 205)));
+                    samePageFlex.Add(ColoredDiv("on top of content", new DeviceRgb(255, 165, 0)));
+                    document.Add(samePageFlex);
+                }
+            }
+            // It is expected that if explicit page-number margins are applied to page 1 after content is already placed,
+            // result will have overlaps of content and margin.
+            NUnit.Framework.Assert.IsNull(new CompareTool().CompareByContent(outFileName, cmpFileName, DESTINATION_FOLDER
+                , "diff_" + fileName));
+        }
+
+        [NUnit.Framework.Test]
+        public virtual void SectionBreaksMarginsNotOverriddenTest() {
+            String fileName = "sectionBreaksMarginsNotOverridden";
+            String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
+            String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
+            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+                using (Document document = new Document(pdfDoc, PageSize.A4, false)) {
+                    Div page1Flex = CreateRowFlexContainer();
+                    page1Flex.Add(ColoredDiv("PAGE 1", new DeviceRgb(65, 151, 29)));
+                    page1Flex.Add(ColoredDiv("NO MARGINS", new DeviceRgb(209, 247, 29)));
+                    document.Add(page1Flex);
+                    document.Add(new SectionBreak(new PageMarginBoxes(PageMarginsTestUtil.GetMarginBoxesWithContent(new Div().
+                        Add(new Paragraph("OVERRIDDEN_MARGIN")).SetBackgroundColor(ColorConstants.PINK).SetTextAlignment(TextAlignment
+                        .CENTER).SetHeight(32), null, null, null))));
+                    document.Add(new SectionBreak(new PageMarginBoxes(PageMarginsTestUtil.GetMarginBoxesWithContent(new Div().
+                        Add(new Paragraph("SECTION_MARGIN_2")).SetBackgroundColor(ColorConstants.YELLOW).SetTextAlignment(TextAlignment
+                        .CENTER).SetHeight(32), null, null, null))));
+                    Div page3Flex = CreateRowFlexContainer();
+                    page3Flex.Add(ColoredDiv("PAGE 2", new DeviceRgb(200, 100, 100)));
+                    page3Flex.Add(ColoredDiv("SECTION 1", new DeviceRgb(100, 200, 100)));
+                    document.Add(page3Flex);
+                    document.SetPageMargins((pageNum) => pageNum % 2 != 0, new PageMarginBoxes(PageMarginsTestUtil.GetMarginBoxesWithContent
+                        (new Div().Add(new Paragraph("LATE_MARGIN")).SetBackgroundColor(ColorConstants.CYAN).SetTextAlignment(
+                        TextAlignment.CENTER).SetHeight(32), null, null, null)));
+                }
+            }
+            NUnit.Framework.Assert.IsNull(new CompareTool().CompareByContent(outFileName, cmpFileName, DESTINATION_FOLDER
+                , "diff_" + fileName));
+        }
+
+        [NUnit.Framework.Test]
+        public virtual void PartialResultMarginsNotOverriddenTest() {
+            String fileName = "partialResultMarginsNotOverridden";
+            String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
+            String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
+            using (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outFileName))) {
+                using (Document document = new Document(pdfDoc, PageSize.A4, false)) {
+                    Div page1Flex = CreateRowFlexContainer();
+                    page1Flex.Add(ColoredDiv("PAGE 1", new DeviceRgb(65, 151, 29)));
+                    page1Flex.Add(ColoredDiv("NO MARGINS", new DeviceRgb(209, 247, 29)).SetHeight(1500));
+                    document.Add(page1Flex);
+                    document.SetPageMargins((pageNum) => pageNum < 5, new PageMarginBoxes(PageMarginsTestUtil.GetMarginBoxesWithContent
+                        (new Div().Add(new Paragraph("LATE_MARGIN")).SetBackgroundColor(ColorConstants.CYAN).SetTextAlignment(
+                        TextAlignment.CENTER).SetHeight(32), null, null, null)));
+                    Div page2Flex = CreateRowFlexContainer();
+                    page2Flex.Add(ColoredDiv("PAGE 2", new DeviceRgb(78, 151, 205)));
+                    page2Flex.Add(ColoredDiv("SECTION 1", new DeviceRgb(255, 165, 0)));
+                    document.Add(page2Flex);
+                    document.Add(new AreaBreak());
+                    Div page3Flex = CreateRowFlexContainer();
+                    page3Flex.Add(ColoredDiv("PAGE 3", new DeviceRgb(200, 100, 100)));
+                    page3Flex.Add(ColoredDiv("SECTION 2", new DeviceRgb(100, 200, 100)));
+                    document.Add(page3Flex);
                 }
             }
             NUnit.Framework.Assert.IsNull(new CompareTool().CompareByContent(outFileName, cmpFileName, DESTINATION_FOLDER
@@ -722,14 +907,6 @@ namespace iText.Layout {
             flex.SetProperty(Property.FLEX_DIRECTION, FlexDirectionPropertyValue.COLUMN);
             flex.SetProperty(Property.FLEX_WRAP, FlexWrapPropertyValue.NOWRAP);
             return flex;
-        }
-
-        private static String RepeatString(String s, int n) {
-            StringBuilder sb = new StringBuilder(s.Length * n);
-            for (int i = 0; i < n; i++) {
-                sb.Append(s);
-            }
-            return sb.ToString();
         }
 
         private static Div ColoredDiv(String label, DeviceRgb color) {

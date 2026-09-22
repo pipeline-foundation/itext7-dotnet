@@ -21,6 +21,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 using System;
+using iText.Commons.Internal.Runtime;
 using iText.Kernel.Font;
 using iText.Kernel.Geom;
 using iText.Kernel.Pdf.Canvas;
@@ -135,6 +136,9 @@ namespace iText.Svg.Renderers.Impl {
             text.SetStrokeColor(textProperties.GetStrokeColor(), textProperties.GetStrokeOpacity());
             text.SetDashPattern(textProperties.GetDashArray(), textProperties.GetDashPhase());
             text.SetProperty(Property.UNDERLINE, textProperties.GetTextDecoration());
+            text.SetLineCapStyle(textProperties.GetLineCapStyle());
+            text.SetLineJoinStyle(textProperties.GetLineJoinStyle());
+            text.SetMiterLimit(textProperties.GetMiterLimit());
         }
 
         private LineRenderer LayoutText(SvgDrawContext context) {

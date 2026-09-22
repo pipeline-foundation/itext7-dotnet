@@ -24,6 +24,7 @@ using System;
 using System.Collections;
 using System.IO;
 using System.Text;
+using iText.Commons.Internal.Runtime;
 using iText.Commons.Utils;
 using iText.StyledXmlParser.Exceptions;
 
@@ -89,6 +90,7 @@ namespace iText.StyledXmlParser.Resolver.Resource
             unreservedAndReserved.Set(',', true);
             unreservedAndReserved.Set(';', true);
             unreservedAndReserved.Set('=', true);
+            unreservedAndReserved.Set('%', true);
 
         }
 

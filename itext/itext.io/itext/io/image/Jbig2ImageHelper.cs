@@ -22,6 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 using System;
 using System.Collections.Generic;
+using iText.Commons.Internal.Runtime;
 using iText.IO.Codec;
 using iText.IO.Exceptions;
 using iText.IO.Source;
@@ -48,6 +49,8 @@ namespace iText.IO.Image {
             }
         }
 
+        /// <summary>Parses the selected page of a JBIG2 image and populates its image attributes.</summary>
+        /// <param name="jbig2">JBIG2 image data to process</param>
         public static void ProcessImage(ImageData jbig2) {
             if (jbig2.GetOriginalType() != ImageType.JBIG2) {
                 throw new ArgumentException("JBIG2 image expected");

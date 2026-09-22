@@ -75,5 +75,76 @@ namespace iText.Layout.Testutil {
                 (ColorConstants.RED).SetWidth(100)));
             return elements;
         }
+
+        /// <summary>
+        /// Creates a PageMarginBox with a single bottom margin box of the given height,
+        /// representing a footnote-style margin area.
+        /// </summary>
+        /// <param name="height">Specified height</param>
+        /// <returns>resulting PageMarginBox element</returns>
+        public static PageMarginBoxes GetFootnoteMarginBoxes(float height) {
+            IList<PageMarginContent> elements = new List<PageMarginContent>();
+            elements.Add(new PageMarginContent(MarginBoxName.BOTTOM, new Div().Add(new Paragraph("FOOTNOTE")).SetBackgroundColor
+                (new DeviceRgb(255, 220, 100)).SetHeight(height)));
+            return new PageMarginBoxes(elements);
+        }
+
+        /// <summary>Creates a PageMarginBox with colored placeholder content on each specified side.</summary>
+        /// <remarks>
+        /// Creates a PageMarginBox with colored placeholder content on each specified side.
+        /// Sides with a value of zero or less are omitted.
+        /// </remarks>
+        /// <param name="top">the height of the top margin box, or zero to omit</param>
+        /// <param name="bottom">the height of the bottom margin box, or zero to omit</param>
+        /// <param name="left">the width of the left margin box, or zero to omit</param>
+        /// <param name="right">the width of the right margin box, or zero to omit</param>
+        /// <returns>a PageMarginBox containing the specified margin box sides</returns>
+        public static PageMarginBoxes GetMarginBoxes(float top, float bottom, float left, float right) {
+            IList<PageMarginContent> elements = new List<PageMarginContent>();
+            if (top > 0) {
+                elements.Add(new PageMarginContent(MarginBoxName.TOP, new Div().Add(new Paragraph("TOP")).SetBackgroundColor
+                    (ColorConstants.PINK).SetHeight(top)));
+            }
+            if (bottom > 0) {
+                elements.Add(new PageMarginContent(MarginBoxName.BOTTOM, new Div().Add(new Paragraph("BTM")).SetBackgroundColor
+                    (ColorConstants.ORANGE).SetHeight(bottom)));
+            }
+            if (left > 0) {
+                elements.Add(new PageMarginContent(MarginBoxName.LEFT, new Div().Add(new Paragraph("L")).SetBackgroundColor
+                    (ColorConstants.BLUE).SetWidth(left)));
+            }
+            if (right > 0) {
+                elements.Add(new PageMarginContent(MarginBoxName.RIGHT, new Div().Add(new Paragraph("R")).SetBackgroundColor
+                    (ColorConstants.YELLOW).SetWidth(right)));
+            }
+            return new PageMarginBoxes(elements);
+        }
+
+        /// <summary>Creates a PageMarginBox with given content on each side.</summary>
+        /// <remarks>
+        /// Creates a PageMarginBox with given content on each side.
+        /// Null sides are omitted.
+        /// </remarks>
+        /// <param name="top">content for the top margin box</param>
+        /// <param name="bottom">content for the bottom margin box</param>
+        /// <param name="left">content for the left margin box</param>
+        /// <param name="right">content for the right margin box</param>
+        /// <returns>a PageMarginBox containing the specified margin box sides</returns>
+        public static PageMarginBoxes GetMarginBoxesWithContent(Div top, Div bottom, Div left, Div right) {
+            IList<PageMarginContent> elements = new List<PageMarginContent>();
+            if (top != null) {
+                elements.Add(new PageMarginContent(MarginBoxName.TOP, top));
+            }
+            if (bottom != null) {
+                elements.Add(new PageMarginContent(MarginBoxName.BOTTOM, bottom));
+            }
+            if (left != null) {
+                elements.Add(new PageMarginContent(MarginBoxName.LEFT, left));
+            }
+            if (right != null) {
+                elements.Add(new PageMarginContent(MarginBoxName.RIGHT, right));
+            }
+            return new PageMarginBoxes(elements);
+        }
     }
 }

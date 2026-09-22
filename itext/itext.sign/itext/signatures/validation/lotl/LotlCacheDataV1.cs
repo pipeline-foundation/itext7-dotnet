@@ -23,6 +23,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 using System;
 using System.Collections.Generic;
 using System.IO;
+using iText.Commons.Internal.Runtime;
 using iText.Commons.Json;
 using iText.Commons.Utils;
 using iText.Kernel.Exceptions;
@@ -77,7 +78,7 @@ namespace iText.Signatures.Validation.Lotl {
                     using (MemoryStream buffer = new MemoryStream()) {
                         byte[] data = new byte[4096];
                         int bytesRead;
-                        while ((bytesRead = @is.JRead(data, 0, data.Length)) != -1) {
+                        while ((bytesRead = @is.JRead(data, 0, data.Length)) > 0) {
                             buffer.Write(data, 0, bytesRead);
                         }
                         byte[] json = buffer.ToArray();
@@ -219,7 +220,7 @@ namespace iText.Signatures.Validation.Lotl {
             if (JsonNull.JSON_NULL != timestampsJson) {
                 JsonObject timestampsJsonObject = (JsonObject)timestampsJson;
                 foreach (KeyValuePair<String, JsonValue> timestampJson in timestampsJsonObject.GetFields()) {
-                    timestampsFromJson.Put(timestampJson.Key, (long)((JsonNumber)timestampJson.Value).GetValue());
+                    timestampsFromJson.Put(timestampJson.Key, ((JsonNumber)timestampJson.Value).GetLongValue());
                 }
             }
             lotlCacheDataFromJson.timeStamps = timestampsFromJson;

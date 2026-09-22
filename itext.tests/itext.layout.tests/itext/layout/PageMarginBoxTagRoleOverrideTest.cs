@@ -40,14 +40,14 @@ namespace iText.Layout {
 
         private static readonly String DESTINATION_FOLDER = TestUtil.GetOutputPath() + "/layout/PageMarginBoxTagRoleOverrideTest/";
 
-        private const String TEXT_BYRON = "When a man hath no freedom to fight for at home,\n" + "    Let him combat for that of his neighbours;\n"
-             + "Let him think of the glories of Greece and of Rome,\n" + "    And get knocked on the head for his labours.\n"
-             + "\n" + "To do good to Mankind is the chivalrous plan,\n" + "    And is always as nobly requited;\n"
-             + "Then battle for Freedom wherever you can,\n" + "    And, if not shot or hanged, you'll get knighted.";
-
         [NUnit.Framework.OneTimeSetUp]
         public static void BeforeClass() {
             CreateOrClearDestinationFolder(DESTINATION_FOLDER);
+        }
+
+        [NUnit.Framework.OneTimeTearDown]
+        public static void AfterClass() {
+            CompareTool.Cleanup(DESTINATION_FOLDER);
         }
 
         [NUnit.Framework.Test]
@@ -55,10 +55,10 @@ namespace iText.Layout {
             String fileName = "relativePositionWithPageMarginTagRoleOverride";
             String outFileName = DESTINATION_FOLDER + fileName + ".pdf";
             String cmpFileName = SOURCE_FOLDER + "cmp_" + fileName + ".pdf";
-            using (PdfDocument pdfDocument = new PdfDocument(new PdfWriter(outFileName))) {
+            using (PdfDocument pdfDocument = new PdfDocument(CompareTool.CreateTestPdfWriter(outFileName))) {
                 using (Document document = new Document(pdfDocument)) {
                     pdfDocument.SetTagged();
-                    Paragraph p = new Paragraph(TEXT_BYRON);
+                    Paragraph p = new Paragraph(TestResourceUtil.GetByronStanza());
                     SectionBreak sectionBreak = new SectionBreak(new PageMarginBoxTagRoleOverrideTest.ParagraphRolePageMarginBoxes
                         (PageMarginsTestUtil.GetPageMargins1()));
                     Div div1 = new Div().Add(p).SetBackgroundColor(new DeviceRgb(65, 151, 29));
@@ -68,9 +68,9 @@ namespace iText.Layout {
                 }
             }
             CompareTool ct = new CompareTool();
+            NUnit.Framework.Assert.IsNull(ct.CompareTagStructures(outFileName, cmpFileName));
             NUnit.Framework.Assert.IsNull(ct.CompareByContent(outFileName, cmpFileName, DESTINATION_FOLDER, "diff_" + 
                 fileName));
-            NUnit.Framework.Assert.IsNull(ct.CompareTagStructures(outFileName, cmpFileName));
         }
 
         private class ParagraphRolePageMarginBoxes : PageMarginBoxes {

@@ -22,10 +22,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 using System;
 using System.IO;
-using Microsoft.Extensions.Logging;
-using iText.Commons;
-using iText.Commons.Bouncycastle.Math;
 using iText.Commons.Digest;
+using iText.Commons.Logs;
 using iText.Commons.Utils;
 using iText.IO.Util;
 using iText.Kernel.Crypto;
@@ -34,6 +32,9 @@ using iText.Kernel.Pdf;
 
 namespace iText.Kernel.Crypto.Securityhandler {
     public class StandardHandlerUsingAes256 : StandardSecurityHandler {
+        private static readonly LazyLogger LOGGER = new LazyLogger(typeof(iText.Kernel.Crypto.Securityhandler.StandardHandlerUsingAes256
+            ));
+
         private const int VALIDATION_SALT_OFFSET = 32;
 
         private const int KEY_SALT_OFFSET = 40;
@@ -268,9 +269,7 @@ namespace iText.Kernel.Crypto.Securityhandler {
                 bool? encryptMetadataEntry = encryptionDictionary.GetAsBool(PdfName.EncryptMetadata);
                 if (permissionsDecoded != permissions || encryptMetadataEntry != null && encryptMetadata != encryptMetadataEntry
                     ) {
-                    ILogger logger = ITextLogManager.GetLogger(typeof(iText.Kernel.Crypto.Securityhandler.StandardHandlerUsingAes256
-                        ));
-                    logger.LogError(iText.IO.Logs.IoLogMessageConstant.ENCRYPTION_ENTRIES_P_AND_ENCRYPT_METADATA_NOT_CORRESPOND_PERMS_ENTRY
+                    LOGGER.Error(() => iText.IO.Logs.IoLogMessageConstant.ENCRYPTION_ENTRIES_P_AND_ENCRYPT_METADATA_NOT_CORRESPOND_PERMS_ENTRY
                         );
                 }
                 this.permissions = permissionsDecoded;
@@ -326,10 +325,7 @@ namespace iText.Kernel.Crypto.Securityhandler {
                     byte[] e = cipher.ProcessFullBlock(k1, 0, k1.Length);
                     // c)
                     IMessageDigest md = null;
-                    IBigInteger i_1 = iText.Bouncycastleconnector.BouncyCastleFactoryCreator.GetFactory().CreateBigInteger(1, 
-                        JavaUtil.ArraysCopyOf(e, 16));
-                    int remainder = i_1.Remainder(iText.Bouncycastleconnector.BouncyCastleFactoryCreator.GetFactory().CreateBigInteger().ValueOf
-                        (3)).GetIntValue();
+                    int remainder = SumUnsignedBytes(e, 0, 16) % 3;
                     switch (remainder) {
                         case 0: {
                             md = mdSha256;
@@ -376,6 +372,14 @@ namespace iText.Kernel.Crypto.Securityhandler {
             byte[] truncated = new byte[48];
             Array.Copy(byteArray, 0, truncated, 0, 48);
             return truncated;
+        }
+
+        private static int SumUnsignedBytes(byte[] array, int from, int to) {
+            int sum = 0;
+            for (int i = from; i < to; ++i) {
+                sum += (array[i] & 0xFF);
+            }
+            return sum;
         }
     }
 }

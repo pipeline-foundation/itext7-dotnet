@@ -23,6 +23,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 using System;
 using System.Collections.Generic;
 using System.IO;
+using iText.Commons.Internal.Runtime;
 using iText.IO.Exceptions;
 using iText.IO.Font.Constants;
 using iText.Kernel.Exceptions;
@@ -1084,9 +1085,9 @@ namespace iText.Kernel.Pdf {
             CompareTool compareTool = new CompareTool();
             String outPdf = destinationFolder + outFileName;
             String cmpPdf = sourceFolder + cmpFileName;
+            String taggedStructureDifferences = compareTool.CompareTagStructures(outPdf, cmpPdf);
             String contentDifferences = compareTool.CompareByContent(outPdf, cmpPdf, destinationFolder, diffNamePrefix
                 );
-            String taggedStructureDifferences = compareTool.CompareTagStructures(outPdf, cmpPdf);
             String errorMessage = "";
             errorMessage += taggedStructureDifferences == null ? "" : taggedStructureDifferences + "\n";
             errorMessage += contentDifferences == null ? "" : contentDifferences;

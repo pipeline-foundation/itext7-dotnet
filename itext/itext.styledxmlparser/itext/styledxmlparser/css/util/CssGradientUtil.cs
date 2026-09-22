@@ -23,6 +23,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 using System;
 using System.Collections.Generic;
 using System.Text;
+using iText.Commons.Internal.Runtime;
 using iText.Commons.Utils;
 using iText.Kernel.Colors.Gradients;
 using iText.Layout.Properties;
@@ -126,7 +127,7 @@ namespace iText.StyledXmlParser.Css.Util {
             StrategyBasedLinearGradientBuilder builder = new StrategyBasedLinearGradientBuilder();
             GradientSpreadMethod gradientSpreadMethod = isRepeating ? GradientSpreadMethod.REPEAT : GradientSpreadMethod
                 .PAD;
-            builder.SetSpreadMethod(gradientSpreadMethod);
+            builder.SetSpread(gradientSpreadMethod);
             int colorStopListStartIndex;
             String firstArgument = argumentsList[0];
             if (CssTypesValidationUtils.IsAngleValue(firstArgument)) {
@@ -174,7 +175,7 @@ namespace iText.StyledXmlParser.Css.Util {
                         UnitValue offset = i == stopsStartIndex ? new UnitValue(UnitValue.PERCENT, 0f) : i == lastStopIndex ? new 
                             UnitValue(UnitValue.PERCENT, 100f) : null;
                         lastCreatedStopColor = CreateStopColor(rgba, offset);
-                        builder.AddColorStop(lastCreatedStopColor);
+                        builder.AddStopColor(lastCreatedStopColor);
                     }
                     else {
                         for (int j = 1; j < elementsList.Count; ++j) {
@@ -190,7 +191,7 @@ namespace iText.StyledXmlParser.Css.Util {
                                     , argument));
                             }
                             lastCreatedStopColor = CreateStopColor(rgba, offset);
-                            builder.AddColorStop(lastCreatedStopColor);
+                            builder.AddStopColor(lastCreatedStopColor);
                         }
                     }
                 }

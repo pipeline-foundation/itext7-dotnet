@@ -22,6 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 using System;
 using System.Collections.Generic;
+using iText.Commons.Internal.Runtime;
 using iText.Commons.Utils;
 
 namespace iText.StyledXmlParser.Css {
@@ -379,6 +380,9 @@ namespace iText.StyledXmlParser.Css {
         /// <summary>The Constant HARD_LIGHT.</summary>
         public const String HARD_LIGHT = "hard-light";
 
+        /// <summary>The Constant HORIZONTAL_TB.</summary>
+        public const String HORIZONTAL_TB = "horizontal-tb";
+
         /// <summary>The Constant HUE.</summary>
         public const String HUE = "hue";
 
@@ -555,6 +559,15 @@ namespace iText.StyledXmlParser.Css {
 
         /// <summary>The Constant UNICODE_BIDI.</summary>
         public const String UNICODE_BIDI = "unicode-bidi";
+
+        /// <summary>The Constant UPRIGHT.</summary>
+        public const String UPRIGHT = "upright";
+
+        /// <summary>The Constant VERTICAL_LR.</summary>
+        public const String VERTICAL_LR = "vertical-lr";
+
+        /// <summary>The Constant VERTICAL_RL.</summary>
+        public const String VERTICAL_RL = "vertical-rl";
 
         /// <summary>The Constant VISIBILITY.</summary>
         public const String VISIBILITY = "visibility";
@@ -1106,6 +1119,12 @@ namespace iText.StyledXmlParser.Css {
 
         /// <summary>The Constant HAS.</summary>
         public const String HAS = "has";
+
+        /// <summary>The Constant IS.</summary>
+        public const String IS = "is";
+
+        /// <summary>The Constant WHERE.</summary>
+        public const String WHERE = "where";
 
         /// <summary>The Constant DISABLED.</summary>
         public const String DISABLED = "disabled";
