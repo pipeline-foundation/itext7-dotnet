@@ -42,6 +42,8 @@ namespace iText.Layout.Renderer {
     /// <see cref="IRenderer">renderer</see>
     /// object for a
     /// <see cref="iText.Layout.Element.Paragraph"/>
+    /// or a
+    /// <see cref="iText.Layout.Element.VerticalParagraph"/>
     /// object.
     /// </summary>
     /// <remarks>
@@ -49,12 +51,26 @@ namespace iText.Layout.Renderer {
     /// <see cref="IRenderer">renderer</see>
     /// object for a
     /// <see cref="iText.Layout.Element.Paragraph"/>
+    /// or a
+    /// <see cref="iText.Layout.Element.VerticalParagraph"/>
     /// object. It will draw the glyphs of the textual content on the
     /// <see cref="DrawContext"/>.
     /// </remarks>
     public class ParagraphRenderer : BlockRenderer {
         private static readonly LazyLogger LOGGER = new LazyLogger(typeof(iText.Layout.Renderer.ParagraphRenderer)
             );
+
+        private static readonly IDictionary<int, String> UNSUPPORTED_PROPERTIES_FOR_VERTICAL_WRITING = new Dictionary
+            <int, String>();
+
+        static ParagraphRenderer() {
+            UNSUPPORTED_PROPERTIES_FOR_VERTICAL_WRITING.Put(Property.FLOAT, "Float");
+            UNSUPPORTED_PROPERTIES_FOR_VERTICAL_WRITING.Put(Property.TAB_STOPS, "Tab stops");
+            UNSUPPORTED_PROPERTIES_FOR_VERTICAL_WRITING.Put(Property.TAB_LEADER, "Tab leader");
+            UNSUPPORTED_PROPERTIES_FOR_VERTICAL_WRITING.Put(Property.TAB_DEFAULT, "Tab default");
+            UNSUPPORTED_PROPERTIES_FOR_VERTICAL_WRITING.Put(Property.TAB_ANCHOR, "Tab anchor");
+            UNSUPPORTED_PROPERTIES_FOR_VERTICAL_WRITING.Put(Property.TEXT_ANCHOR, "Text anchor");
+        }
 
         protected internal IList<LineRenderer> lines = null;
 
@@ -68,6 +84,16 @@ namespace iText.Layout.Renderer {
             : base(modelElement) {
         }
 
+        /// <summary>Creates a ParagraphRenderer from its corresponding layout object.</summary>
+        /// <param name="modelElement">
+        /// the
+        /// <see cref="iText.Layout.Element.VerticalParagraph"/>
+        /// which this object should manage
+        /// </param>
+        public ParagraphRenderer(VerticalParagraph modelElement)
+            : base(modelElement) {
+        }
+
         /// <summary><inheritDoc/></summary>
         public override LayoutResult Layout(LayoutContext layoutContext) {
             ParagraphOrphansControl orphansControl = this.GetProperty<ParagraphOrphansControl>(Property.ORPHANS_CONTROL
@@ -77,8 +103,8 @@ namespace iText.Layout.Renderer {
                 return OrphansWidowsLayoutHelper.OrphansWidowsAwareLayout(this, layoutContext, orphansControl, widowsControl
                     );
             }
-            if (RenderingMode.SVG_MODE == this.GetProperty<RenderingMode?>(Property.RENDERING_MODE) && !TypographyUtils
-                .IsPdfCalligraphAvailable()) {
+            if (RenderingMode.SVG_MODE == this.GetProperty<RenderingMode?>(Property.RENDERING_MODE) && (!TypographyUtils
+                .IsPdfCalligraphAvailable() || IsVerticalWriting())) {
                 // BASE_DIRECTION property is always set to the SVG text since we can't easily check whether typography is
                 // available at svg module level, but it makes no sense without typography, so it is removed here.
                 this.DeleteProperty(Property.BASE_DIRECTION);
@@ -87,6 +113,16 @@ namespace iText.Layout.Renderer {
             UpdateParentLines(this);
             UpdateParentLines((iText.Layout.Renderer.ParagraphRenderer)layoutResult.GetSplitRenderer());
             return layoutResult;
+        }
+
+        public override IRenderer SetParent(IRenderer parent) {
+            if (base.GetParent() == parent) {
+                return this;
+            }
+            base.SetParent(parent);
+            isVerticalMode = null;
+            CheckProperties();
+            return this;
         }
 
         protected internal virtual LayoutResult DirectLayout(LayoutContext layoutContext) {
@@ -563,6 +599,9 @@ namespace iText.Layout.Renderer {
         /// <returns>new renderer instance</returns>
         public override IRenderer GetNextRenderer() {
             LogWarningIfGetNextRendererNotOverridden(typeof(iText.Layout.Renderer.ParagraphRenderer), this.GetType());
+            if (modelElement is VerticalParagraph) {
+                return new iText.Layout.Renderer.ParagraphRenderer((VerticalParagraph)modelElement);
+            }
             return new iText.Layout.Renderer.ParagraphRenderer((Paragraph)modelElement);
         }
 
@@ -648,6 +687,17 @@ namespace iText.Layout.Renderer {
                 }
             }
             return null;
+        }
+
+        private void CheckProperties() {
+            if (IsVerticalWriting()) {
+                foreach (KeyValuePair<int, String> entry in UNSUPPORTED_PROPERTIES_FOR_VERTICAL_WRITING) {
+                    if (this.HasProperty(entry.Key)) {
+                        LOGGER.Warn(() => MessageFormatUtil.Format(LayoutLogMessageConstant.UNSUPPORTED_PROPERTY, "vertical text", 
+                            entry.Value));
+                    }
+                }
+            }
         }
 
         private iText.Layout.Renderer.ParagraphRenderer CreateOverflowRenderer() {
