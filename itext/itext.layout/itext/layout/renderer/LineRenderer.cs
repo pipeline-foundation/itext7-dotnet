@@ -65,20 +65,17 @@ namespace iText.Layout.Renderer {
 
         private float maxBlockDescent;
 
-        private bool childrenWithDifferentDirections = false;
-
         public override LayoutResult Layout(LayoutContext layoutContext) {
             int firstChildToRelayout = -1;
             Rectangle layoutBox = layoutContext.GetArea().GetBBox().Clone();
             bool wasParentsHeightClipped = layoutContext.IsClippedHeight();
             IList<Rectangle> floatRendererAreas = layoutContext.GetFloatRendererAreas();
             bool isVerticalWriting = IsVerticalWriting();
-            WritingMode? writingMode = GetWritingMode(this);
+            AbstractTypographyApplier typographyApplier = TypographyUtils.GetApplierInstance(isVerticalWriting);
             bool textSequenceOverflowProcessing = false;
             OverflowPropertyValue? oldOverflow = null;
             int overflowProperty = isVerticalWriting ? Property.OVERFLOW_Y : Property.OVERFLOW_X;
             bool wasOverflowChanged = false;
-            WritingMode? childWritingMode = writingMode;
             bool floatsPlacedBeforeLine = false;
             if (floatRendererAreas != null) {
                 float layoutWidth = layoutBox.GetWidth();
@@ -142,7 +139,7 @@ namespace iText.Layout.Renderer {
             ResolveChildrenFonts();
             int totalNumberOfTrimmedGlyphs = TrimFirst();
             BaseDirection? baseDirection = ApplyOtf();
-            UpdateBidiLevels(totalNumberOfTrimmedGlyphs, baseDirection);
+            UpdateBidiLevels(totalNumberOfTrimmedGlyphs, baseDirection, typographyApplier);
             bool anythingPlaced = false;
             TabStop hangingTabStop = null;
             LineLayoutResult result = null;
@@ -161,8 +158,6 @@ namespace iText.Layout.Renderer {
             while (childPos < GetChildRenderers().Count) {
                 IRenderer directChildRenderer = GetChildRenderers()[childPos];
                 IRenderer childRenderer = UnwrapChildRendererIfNeeded(directChildRenderer);
-                childWritingMode = GetWritingMode(childRenderer);
-                bool sameDirection = childWritingMode == writingMode;
                 bool childVerticalWriting = IsChildVerticallyWritten(childPos);
                 LayoutResult childResult = null;
                 Rectangle bbox;
@@ -181,14 +176,14 @@ namespace iText.Layout.Renderer {
                     continue;
                 }
                 RenderingMode? childRenderingMode = childRenderer.GetProperty<RenderingMode?>(Property.RENDERING_MODE);
-                if (TextSequenceWordWrapping.IsTextRendererAndRequiresSpecialScriptPreLayoutProcessing(childRenderer, sameDirection
-                    ) && TypographyUtils.IsPdfCalligraphAvailable() && !isVerticalWriting) {
+                if (TextSequenceWordWrapping.IsTextRendererAndRequiresSpecialScriptPreLayoutProcessing(childRenderer) && typographyApplier
+                    .IsPdfCalligraphInstance()) {
                     TextSequenceWordWrapping.ProcessSpecialScriptPreLayout(this, childPos);
                 }
                 TextSequenceWordWrapping.ResetTextSequenceIfItEnded(specialScriptLayoutResults, true, childRenderer, childPos
-                    , minMaxWidthOfTextRendererSequenceHelper, noSoftWrap, widthHandler, sameDirection, isVerticalWriting);
+                    , minMaxWidthOfTextRendererSequenceHelper, noSoftWrap, widthHandler, isVerticalWriting);
                 TextSequenceWordWrapping.ResetTextSequenceIfItEnded(textRendererLayoutResults, false, childRenderer, childPos
-                    , minMaxWidthOfTextRendererSequenceHelper, noSoftWrap, widthHandler, sameDirection, isVerticalWriting);
+                    , minMaxWidthOfTextRendererSequenceHelper, noSoftWrap, widthHandler, isVerticalWriting);
                 if (childRenderer is TextRenderer) {
                     // Delete these properties in case of relayout. We might have applied them during justify().
                     childRenderer.DeleteOwnProperty(Property.CHARACTER_SPACING);
@@ -391,15 +386,15 @@ namespace iText.Layout.Renderer {
                         SetProperty(overflowProperty, OverflowPropertyValue.FIT);
                     }
                     TextSequenceWordWrapping.PreprocessTextSequenceOverflow(this, textSequenceOverflowProcessing, childRenderer
-                        , wasOverflowChanged, oldOverflow, overflowProperty, sameDirection);
+                        , wasOverflowChanged, oldOverflow, overflowProperty);
                     childResult = directChildRenderer.Layout(new LayoutContext(new LayoutArea(layoutContext.GetArea().GetPageNumber
                         (), bbox), wasParentsHeightClipped));
                     shouldBreakLayouting = TextSequenceWordWrapping.PostprocessTextSequenceOverflow(this, textSequenceOverflowProcessing
-                        , childPos, childRenderer, childResult, wasOverflowChanged, overflowProperty, sameDirection);
+                        , childPos, childRenderer, childResult, wasOverflowChanged, overflowProperty);
                     TextSequenceWordWrapping.UpdateTextSequenceLayoutResults(textRendererLayoutResults, false, childRenderer, 
-                        childPos, childResult, sameDirection);
+                        childPos, childResult);
                     TextSequenceWordWrapping.UpdateTextSequenceLayoutResults(specialScriptLayoutResults, true, childRenderer, 
-                        childPos, childResult, sameDirection);
+                        childPos, childResult);
                     // it means that we've already increased layout area by MIN_MAX_WIDTH_CORRECTION_EPS
                     if (childResult is MinMaxWidthLayoutResult && null != childBlockMinMaxWidth) {
                         MinMaxWidth childResultMinMaxWidth = ((MinMaxWidthLayoutResult)childResult).GetMinMaxWidth();
@@ -436,23 +431,14 @@ namespace iText.Layout.Renderer {
                     , isInlineBlockChild);
                 lineAscentDescentStateBeforeTextRendererSequence = TextSequenceWordWrapping.UpdateTextRendererSequenceAscentDescent
                     (this, textRendererSequenceAscentDescent, childPos, childAscentDescent, lineAscentDescentStateBeforeTextRendererSequence
-                    , sameDirection);
+                    );
                 minMaxWidthOfTextRendererSequenceHelper = TextSequenceWordWrapping.UpdateTextRendererSequenceMinMaxWidth(this
                     , widthHandler, childPos, minMaxWidthOfTextRendererSequenceHelper, anythingPlaced, textRendererLayoutResults
-                    , specialScriptLayoutResults, lineLayoutContext.GetTextIndent(), sameDirection);
+                    , specialScriptLayoutResults, lineLayoutContext.GetTextIndent());
                 bool newLineOccurred = (childResult is TextLayoutResult && ((TextLayoutResult)childResult).IsSplitForcedByNewline
                     ());
                 if (!shouldBreakLayouting) {
                     shouldBreakLayouting = childResult.GetStatus() != LayoutResult.FULL || newLineOccurred;
-                }
-                if (!sameDirection && childResult.GetStatus() == LayoutResult.PARTIAL && childResult is TextLayoutResult) {
-                    shouldBreakLayouting = false;
-                    TextRenderer overflowRenderer = (TextRenderer)childResult.GetOverflowRenderer();
-                    overflowRenderer.TrimFirst();
-                    this.childRenderers.Add(childPos + 1, overflowRenderer);
-                }
-                if (ChildChangingWritingDirection(childPos)) {
-                    childrenWithDifferentDirections = true;
                 }
                 bool shouldBreakLayoutingOnTextRenderer = shouldBreakLayouting && childResult is TextLayoutResult;
                 bool forceOverflowForTextRendererPartialResult = false;
@@ -462,7 +448,7 @@ namespace iText.Layout.Renderer {
                         ).TextContainsSpecialScriptGlyphs(true);
                     bool enableSpecialScriptsWrapping = childRenderer is TextRenderer && !textSequenceOverflowProcessing && !newLineOccurred
                          && ((TextRenderer)childRenderer).TextContainsSpecialScriptGlyphs(true);
-                    bool enableTextSequenceWrapping = ((RenderingMode.HTML_MODE == childRenderingMode && sameDirection) || (directChildRenderer
+                    bool enableTextSequenceWrapping = ((RenderingMode.HTML_MODE == childRenderingMode) || (directChildRenderer
                          is FootnoteAnchorRenderer && childRenderer is TextRenderer)) && !newLineOccurred && !textSequenceOverflowProcessing;
                     if (isWordHasBeenSplitLayoutRenderingMode) {
                         forceOverflowForTextRendererPartialResult = IsForceOverflowForTextRendererPartialResult(childRenderer, wasOverflowChanged
@@ -581,26 +567,25 @@ namespace iText.Layout.Renderer {
                         }
                     }
                     if (!forceOverflowForTextRendererPartialResult) {
-                        if (childrenWithDifferentDirections && childResult.GetOccupiedArea() != null) {
-                            // In case of mixed directions, we can simply intersect children occupied area.
-                            occupiedArea.SetBBox(Rectangle.GetCommonRectangle(occupiedArea.GetBBox(), childResult.GetOccupiedArea().GetBBox
-                                ()));
-                        }
-                        else {
-                            if (isVerticalWriting) {
-                                float maxLineWidth = Math.Max(occupiedArea.GetBBox().GetWidth(), childResult.GetStatus() == LayoutResult.NOTHING
-                                     ? 0 : childResult.GetOccupiedArea().GetBBox().GetWidth());
-                                // Html/css and browsers also use line height as line width for vertical text.
-                                float lineHeight = Math.Max(maxAscent - maxDescent, maxLineWidth);
-                                occupiedArea.SetBBox(new Rectangle(layoutBox.GetX(), layoutBox.GetY() + layoutBox.GetHeight() - curMainAxisOccupiedSize
-                                    , lineHeight, curMainAxisOccupiedSize));
-                                widthHandler.UpdateMaxChildWidth(lineHeight);
-                                widthHandler.UpdateMinChildWidth(lineHeight);
+                        if (isVerticalWriting) {
+                            float maxLineWidth = Math.Max(occupiedArea.GetBBox().GetWidth(), childResult.GetStatus() == LayoutResult.NOTHING
+                                 ? 0 : childResult.GetOccupiedArea().GetBBox().GetWidth());
+                            // Html/css and browsers also use line height as line width for vertical text.
+                            float verticalLineWidth;
+                            if (childResult is TextLayoutResult) {
+                                verticalLineWidth = Math.Max(maxTextAscent - maxTextDescent, maxLineWidth);
                             }
                             else {
-                                occupiedArea.SetBBox(new Rectangle(layoutBox.GetX(), layoutBox.GetY() + layoutBox.GetHeight() - maxHeight, 
-                                    curMainAxisOccupiedSize, maxHeight));
+                                verticalLineWidth = maxLineWidth;
                             }
+                            occupiedArea.SetBBox(new Rectangle(layoutBox.GetX(), layoutBox.GetY() + layoutBox.GetHeight() - curMainAxisOccupiedSize
+                                , verticalLineWidth, curMainAxisOccupiedSize));
+                            widthHandler.UpdateMaxChildWidth(verticalLineWidth);
+                            widthHandler.UpdateMinChildWidth(verticalLineWidth);
+                        }
+                        else {
+                            occupiedArea.SetBBox(new Rectangle(layoutBox.GetX(), layoutBox.GetY() + layoutBox.GetHeight() - maxHeight, 
+                                curMainAxisOccupiedSize, maxHeight));
                         }
                     }
                 }
@@ -682,9 +667,9 @@ namespace iText.Layout.Renderer {
                 }
             }
             TextSequenceWordWrapping.ResetTextSequenceIfItEnded(specialScriptLayoutResults, true, null, childPos, minMaxWidthOfTextRendererSequenceHelper
-                , noSoftWrap, widthHandler, true, isVerticalWriting);
+                , noSoftWrap, widthHandler, isVerticalWriting);
             TextSequenceWordWrapping.ResetTextSequenceIfItEnded(textRendererLayoutResults, false, null, childPos, minMaxWidthOfTextRendererSequenceHelper
-                , noSoftWrap, widthHandler, true, isVerticalWriting);
+                , noSoftWrap, widthHandler, isVerticalWriting);
             if (result == null) {
                 bool noOverflowedFloats = floatsOverflowedToNextLine.IsEmpty() && floatsToNextPageOverflowRenderers.IsEmpty
                     ();
@@ -730,13 +715,7 @@ namespace iText.Layout.Renderer {
                     Array.Copy(levels, 0, lineLevels, 0, splitIntoGlyphsData.GetLineGlyphs().Count);
                 }
                 int[] newOrder;
-                if (isVerticalWriting) {
-                    newOrder = new DefaultTypographyApplier().ReorderLine(splitIntoGlyphsData.GetLineGlyphs(), lineLevels, levels
-                        );
-                }
-                else {
-                    newOrder = TypographyUtils.ReorderLine(splitIntoGlyphsData.GetLineGlyphs(), lineLevels, levels);
-                }
+                newOrder = typographyApplier.ReorderLine(splitIntoGlyphsData.GetLineGlyphs(), lineLevels, levels);
                 if (newOrder != null) {
                     Reorder(toProcess, splitIntoGlyphsData, newOrder);
                     AdjustChildPositionsAfterReordering(toProcess.GetChildRenderers(), occupiedArea.GetBBox().GetLeft());
@@ -755,12 +734,7 @@ namespace iText.Layout.Renderer {
                     toProcess.AdjustChildrenXLineVerticalWritingMode(minMaxWidth);
                 }
                 else {
-                    if (writingMode == childWritingMode && !childrenWithDifferentDirections) {
-                        toProcess.AdjustChildrenYLine().AdjustChildrenXLine();
-                    }
-                    else {
-                        toProcess.AdjustChildrenYLineMixedWritingModes();
-                    }
+                    toProcess.AdjustChildrenYLine().AdjustChildrenXLine();
                 }
                 toProcess.AdjustChildrenBasedOnWritingMode();
                 toProcess.TrimLast();
@@ -1277,17 +1251,6 @@ namespace iText.Layout.Renderer {
             return false;
         }
 
-        private bool ChildChangingWritingDirection(int childIndex) {
-            if (childRenderers.Count > childIndex + 1) {
-                if (childRenderers[childIndex] is AbstractRenderer && childRenderers[childIndex + 1] is AbstractRenderer) {
-                    AbstractRenderer renderer1 = (AbstractRenderer)childRenderers[childIndex];
-                    AbstractRenderer renderer2 = (AbstractRenderer)childRenderers[childIndex + 1];
-                    return GetWritingMode(renderer1) != GetWritingMode(renderer2);
-                }
-            }
-            return false;
-        }
-
         private LineRenderer[] SplitNotFittingFloat(int childPos, LayoutResult childResult) {
             LineRenderer[] split = Split();
             split[0].AddAllChildRenderers(GetChildRenderers().SubList(0, childPos));
@@ -1772,7 +1735,8 @@ namespace iText.Layout.Renderer {
         }
 //\endcond
 
-        private void UpdateBidiLevels(int totalNumberOfTrimmedGlyphs, BaseDirection? baseDirection) {
+        private void UpdateBidiLevels(int totalNumberOfTrimmedGlyphs, BaseDirection? baseDirection, AbstractTypographyApplier
+             typographyApplier) {
             if (totalNumberOfTrimmedGlyphs != 0 && levels != null) {
                 levels = JavaUtil.ArraysCopyOfRange(levels, totalNumberOfTrimmedGlyphs, levels.Length);
             }
@@ -1806,14 +1770,8 @@ namespace iText.Layout.Renderer {
                     SequenceId sequenceId = pdfDocument == null ? null : pdfDocument.GetDocumentIdWrapper();
                     MetaInfoContainer metaInfoContainer = this.GetProperty<MetaInfoContainer>(Property.META_INFO);
                     IMetaInfo metaInfo = metaInfoContainer == null ? null : metaInfoContainer.GetMetaInfo();
-                    if (IsVerticalWriting()) {
-                        levels = new DefaultTypographyApplier().GetBidiLevels(baseDirection, ArrayUtil.ToIntArray(unicodeIdsReorderingList
-                            ), sequenceId, metaInfo);
-                    }
-                    else {
-                        levels = TypographyUtils.GetBidiLevels(baseDirection, ArrayUtil.ToIntArray(unicodeIdsReorderingList), sequenceId
-                            , metaInfo);
-                    }
+                    levels = typographyApplier.GetBidiLevels(baseDirection, ArrayUtil.ToIntArray(unicodeIdsReorderingList), sequenceId
+                        , metaInfo);
                 }
                 else {
                     levels = null;
@@ -1906,22 +1864,6 @@ namespace iText.Layout.Renderer {
             }
             if (hasTextRise || HasInlineBlocksWithVerticalAlignment()) {
                 InlineVerticalAlignmentHelper.AdjustChildrenXLineVerticalText(this, minMaxWidth);
-            }
-        }
-
-        private void AdjustChildrenYLineMixedWritingModes() {
-            float maxHeight = 0;
-            IList<TextRenderer> textChildren = new List<TextRenderer>();
-            foreach (IRenderer renderer in GetChildRenderers()) {
-                IRenderer unwrapped = UnwrapChildRendererIfNeeded(renderer);
-                if (unwrapped is TextRenderer) {
-                    maxHeight = Math.Max(maxHeight, unwrapped.GetOccupiedArea().GetBBox().GetHeight());
-                    textChildren.Add((TextRenderer)unwrapped);
-                }
-            }
-            foreach (TextRenderer textRenderer in textChildren) {
-                float textChunkHeight = textRenderer.GetOccupiedArea().GetBBox().GetHeight();
-                textRenderer.Move(0, textChunkHeight - maxHeight);
             }
         }
 
